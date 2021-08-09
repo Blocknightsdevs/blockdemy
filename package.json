@@ -1,0 +1,26 @@
+{
+  "name": "blockdemy",
+  "version": "1.0.0",
+  "description": "Blockdemy is going to be an educational ecosystem where instructors are the owners of NFTs that represents each course, within this ecosystem there can be investors that want to buy this courses as NFTs that also will have some royalties, so the instructors might want to sell their courses rights to others instructors, the videos are going to be stored on a descentralized way and students will collect blockdemy tokens when they finalize a course, those tokens are going to be accepted as payment along with other cryptocurrencies.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "truffle": "^5.4.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Blocknightsdevs/blockdemy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Blocknightsdevs/blockdemy/issues"
+  },
+  "homepage": "https://github.com/Blocknightsdevs/blockdemy#readme"
+}
