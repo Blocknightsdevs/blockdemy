@@ -1,0 +1,12 @@
+function deleteVideo(uint256 index)
+    external
+    returns (BlockdemyVideo[] memory)
+{
+    require(index >= course.length, "index out of bounds");
+
+    for (uint256 i = index; i < course.length - 1; i++) {
+        course[i] = course[i + 1];
+    }
+    course.pop();
+    return course;
+}
