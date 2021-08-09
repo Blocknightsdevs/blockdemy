@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-pragma solidity ^0.8.0;
 
 contract BlockdemyCourse is ERC721 {
     using Counters for Counters.Counter;
@@ -20,6 +22,13 @@ contract BlockdemyCourse is ERC721 {
         string description;
         string[] uris;
         bool onSale;
+    }
+
+    //we will need to transform the string[] into video[]
+    struct video{
+        string title;
+        string description;
+        string uri;
     }
 
     constructor() ERC721("BDEMY Course", "BDEMYC") {}

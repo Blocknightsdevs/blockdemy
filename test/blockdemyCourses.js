@@ -11,14 +11,7 @@ contract("Courses", (accounts) => {
     let title = "course 1";
     let description = "description of course 1";
 
-    const uris = [
-      "fyagygfygfg",
-      "fsfsfeef",
-      "ddaddwawdd",
-      "ffesfeeffefeefs",
-      "esffeeffeffe",
-      "sffsfsf",
-    ];
+    const uris = [];
 
     await bdemycInstance.mintCourse(
       accounts[0],
@@ -37,6 +30,7 @@ contract("Courses", (accounts) => {
 
     assert(bdemyCourses[0].price == 1000, "Did not put correct price");
     assert(bdemyCourses[0].onSale, "Did not put correct sale");
+    console.log(bdemyCourses[0].uris)
   });
 
   it("should delete video of a course", async () => {
