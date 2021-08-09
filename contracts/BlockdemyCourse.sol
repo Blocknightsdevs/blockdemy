@@ -10,15 +10,35 @@ contract BlockdemyCourse is ERC721 {
     mapping(uint256 => string[]) private _tokenUris;
     mapping(uint256 => uint256) private _tokenPrices;
     mapping(uint256 => bool) private _tokenOnSale;
+    mapping(uint256 => string) private _tokenTitles;
+    mapping(uint256 => string) private _tokenDescriptions;
 
     struct TokenProps {
         uint256 id;
         uint256 price;
+        string title;
+        string description;
         string[] uris;
         bool onSale;
     }
 
     constructor() ERC721("BDEMY Course", "BDEMYC") {}
+
+    function setTokenTitle(uint256 tokenId, string memory _title)
+        public
+        TokenExists(tokenId)
+        IsOwner(tokenId)
+    {
+        _tokenTitles[tokenId] = _title;
+    }
+
+    function setTokenDescription(uint256 tokenId, string memory _description)
+        public
+        TokenExists(tokenId)
+        IsOwner(tokenId)
+    {
+        _tokenDescriptions[tokenId] = _description;
+    }
 
     function setTokenOnSale(uint256 tokenId, bool _sale)
         public
@@ -61,6 +81,8 @@ contract BlockdemyCourse is ERC721 {
     */
     function mintCourse(
         address _owner,
+        string memory _title,
+        string memory _description,
         string[] memory _uris,
         uint256 _price, //IN USDT
         bool _sale
@@ -74,16 +96,18 @@ contract BlockdemyCourse is ERC721 {
         setTokenPrice(newItemId, _price);
         setTokenUris(newItemId, _uris);
         setTokenOnSale(newItemId, _sale);
+        setTokenTitle(newItemId, _title);
+        setTokenDescription(newItemId, _description);
 
         return newItemId;
     }
 
     function deleteVideo(uint256 tokenId, string memory _hash)
-        external 
+        external
         TokenExists(tokenId)
         IsOwner(tokenId)
     {
-        uint index = getTokenIndexByHash(tokenId,_hash);
+        uint256 index = getTokenIndexByHash(tokenId, _hash);
         string[] memory uris = _tokenUris[tokenId];
         for (uint256 i = index; i < uris.length - 1; i++) {
             uris[i] = uris[i + 1];
@@ -93,7 +117,8 @@ contract BlockdemyCourse is ERC721 {
     }
 
     function getTokenIndexByHash(uint256 tokenId, string memory _hash)
-        internal view
+        internal
+        view
         returns (uint256)
     {
         string[] memory uris = _tokenUris[tokenId];
@@ -115,6 +140,26 @@ contract BlockdemyCourse is ERC721 {
             keccak256(abi.encodePacked((b))));
     }
 
+    function getCourseById(uint256 tokenId)
+        public
+        view
+        returns (TokenProps memory)
+    {
+        require(
+            tokenId > 0 && tokenId <= _tokenIds.current(),
+            "wrong token id"
+        );
+        TokenProps memory token = TokenProps(
+            tokenId,
+            _tokenPrices[tokenId],
+            _tokenTitles[tokenId],
+            _tokenDescriptions[tokenId],
+            _tokenUris[tokenId],
+            _tokenOnSale[tokenId]
+        );
+        return token;
+    }
+
     function getAllCourses() public view returns (TokenProps[] memory) {
         TokenProps[] memory tokens = new TokenProps[](_tokenIds.current());
         uint256 counter = 0;
@@ -123,6 +168,8 @@ contract BlockdemyCourse is ERC721 {
             TokenProps memory token = TokenProps(
                 i,
                 _tokenPrices[i],
+                _tokenTitles[i],
+                _tokenDescriptions[i],
                 _tokenUris[i],
                 _tokenOnSale[i]
             );
