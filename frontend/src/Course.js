@@ -16,12 +16,7 @@ function Course({ contract, accounts }) {
   const saveData = async (event) => {
     event.preventDefault();
 
-    console.log( accounts[0],
-        title,
-        description,
-        buffer,
-        price,
-        onSale);
+ 
     let res = await ipfs.add(buffer, async (error, result) => {
       console.log("Ipfs result", result);
       if (error) {
@@ -29,16 +24,6 @@ function Course({ contract, accounts }) {
         return;
       }
       console.log(result[0].hash, description);
-      /*contract.methods
-        .mintCourse(
-          accounts[0],
-          title,
-          description,
-          [result[0].hash],
-          price,
-          onSale
-        )
-        .send();*/
     });
     
     contract.methods
