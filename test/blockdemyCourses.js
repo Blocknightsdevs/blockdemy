@@ -89,7 +89,7 @@ contract("Courses", (accounts) => {
       true
     );
 
-    await bdemycInstance.deleteVideo(2, "ddaddwawdd2");
+    await bdemycInstance.deleteUri(2, "ddaddwawdd2");
 
     const bdemyCourses = await bdemycInstance.getAllCourses();
     assert(
@@ -98,7 +98,7 @@ contract("Courses", (accounts) => {
     );
 
     await expectRevert(
-      bdemycInstance.deleteVideo(1, "ddaddwawdd2"),
+      bdemycInstance.deleteUri(1, "ddaddwawdd2"),
       "non existent hash"
     );
   });
@@ -126,7 +126,7 @@ contract("Courses", (accounts) => {
     );
 
     await expectRevert(
-      bdemycInstance.deleteVideo(1, "ddaddwawdd2"),
+      bdemycInstance.deleteUri(1, "ddaddwawdd2"),
       "non existent hash"
     );
   });
@@ -207,4 +207,42 @@ contract("Courses", (accounts) => {
     assert(bdemyCourse1.price == 1000, "wrong 1000 retreived");
     assert(bdemyCourse1.onSale, "wrong onSale retreived");
   });
+
+
+  it("should add video to course course", async () => {
+    let title = "course 1";
+    let description = "description of course 1";
+
+    const uris = [
+      "fyagygfygfg",
+      "fsfsfeef",
+      "ddaddwawdd",
+      "ffesfeeffefeefs",
+      "esffeeffeffe",
+      "sffsfsf",
+    ];
+
+    await bdemycInstance.mintCourse(
+      accounts[0],
+      title,
+      description,
+      uris,
+      1000,
+      true
+    );
+
+    await bdemycInstance.addTokenUris(1,['new video uri']);
+
+    const bdemyCourse1 = await bdemycInstance.getCourseById(1);
+
+    assert(
+      bdemyCourse1.uris.length == 7,
+      "wrong number of videos"
+    );
+
+
+
+  });
+
+
 });

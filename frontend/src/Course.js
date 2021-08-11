@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
+import { InputGroup , FormControl,Button  } from 'react-bootstrap';
+
 const ipfsClient = require("ipfs-http-client");
 const ipfs = ipfsClient.create({
   host: "ipfs.infura.io",
@@ -11,32 +13,38 @@ function Course({ contract, accounts }) {
   const [description, setDescription] = useState(null);
   const [price, setPrice] = useState(null);
   const [onSale, setOnSale] = useState(null);
-  const [buffer, setBuffer] = useState([]);
+  const [buffers, setBuffers] = useState([]);
+  const [paths, setPaths] = useState([]);
+  const [saved, setSaved] = useState(false);
+
+
+  useEffect(()=> {
+    if(buffers.length > 0 && buffers.length == paths.length && !saved){
+      contract.methods
+        .mintCourse(accounts[0], title, description, paths, price, onSale)
+        .send({ from: accounts[0] });
+        console.log(paths);
+        setSaved(true);
+    }
+  },[paths]);
 
   const saveData = async (event) => {
     event.preventDefault();
 
- 
-    let res = await ipfs.add(buffer, async (error, result) => {
-      console.log("Ipfs result", result);
-      if (error) {
-        console.error(error);
-        return;
-      }
-      console.log(result[0].hash, description);
+    await buffers.forEach(async (bufferElement) => {
+      let res = await ipfs.add(bufferElement, async (error, result) => {
+        console.log("Ipfs result", result);
+        if (error) {
+          console.error(error);
+          return;
+        }
+        console.log(result[0].hash, description);
+      });
+      setPaths((paths) => [...paths, res.path])
     });
-    
-    contract.methods
-        .mintCourse(
-          accounts[0],
-          title,
-          description,
-          [res.path],
-          price,
-          onSale
-        )
-        .send({from: accounts[0]});
   };
+
+
 
   const captureFile = (event) => {
     event.preventDefault();
@@ -45,8 +53,7 @@ function Course({ contract, accounts }) {
     reader.readAsArrayBuffer(file);
 
     reader.onloadend = () => {
-      setBuffer(Buffer(reader.result));
-      console.log("buffer", buffer);
+      setBuffers((buffers) => [...buffers, Buffer(reader.result)]);
     };
   };
 
@@ -56,39 +63,65 @@ function Course({ contract, accounts }) {
       enctype="multipart/form-data"
       onSubmit={(e) => saveData(e)}
     >
-      Title:{" "}
-      <input
+     <InputGroup > <InputGroup.Text id="basic-addon1">Title:{" "}</InputGroup.Text>
+      <FormControl
         type="text"
         name="title"
         onChange={(e) => setTitle(e.target.value)}
-      ></input>
-      Description:{" "}
-      <input
+      ></FormControl>
+      </InputGroup>
+      <InputGroup >
+      <InputGroup.Text id="basic-addon1">Description:{" "}</InputGroup.Text>
+      <FormControl
         type="text"
         name="description"
         onChange={(e) => setDescription(e.target.value)}
-      ></input>
-      Price:{" "}
-      <input
+      ></FormControl>
+      </InputGroup>
+      <InputGroup >
+     <InputGroup.Text id="basic-addon1"> Price:{" "}</InputGroup.Text>
+      <FormControl
         type="number"
         name="price"
         onChange={(e) => setPrice(e.target.value)}
-      ></input>
-      OnSale:{" "}
-      <input
+      ></FormControl>
+      <InputGroup.Text id="basic-addon1">OnSale:{" "}</InputGroup.Text>
+      <InputGroup.Checkbox
         type="checkbox"
         name="onSale"
         onChange={(e) => setOnSale(e.target.checked)}
-      ></input>
-      File:{" "}
-      <input
+      ></InputGroup.Checkbox>
+      </InputGroup>
+      <InputGroup >
+      <InputGroup.Text id="basic-addon1">File1:{" "}</InputGroup.Text>
+      <FormControl
         type="file"
-        name="file"
+        name="file[]"
         multiple
         id="file"
+        accept="video/mp4"
         onChange={(e) => captureFile(e)}
       />
-      <input type="submit" name="ok" />
+      <InputGroup.Text id="basic-addon1">File2:{" "}</InputGroup.Text>
+      <FormControl
+        type="file"
+        name="file[]"
+        multiple
+        id="file"
+        accept="video/mp4"
+        onChange={(e) => captureFile(e)}
+      />
+      <InputGroup.Text id="basic-addon1">File3:{" "}</InputGroup.Text>
+      <FormControl
+        type="file"
+        name="file[]"
+        multiple
+        id="file"
+        accept="video/mp4"
+        onChange={(e) => captureFile(e)}
+      />
+      </InputGroup>
+      <Button  type="submit" name="ok" >Send</Button>
     </form>
   );
 }

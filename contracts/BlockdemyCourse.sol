@@ -17,6 +17,7 @@ contract BlockdemyCourse is ERC721 {
 
     struct TokenProps {
         uint256 id;
+        address owner;
         uint256 price;
         string title;
         string description;
@@ -25,6 +26,8 @@ contract BlockdemyCourse is ERC721 {
     }
 
     //we will need to transform the string[] into video[]
+    //solidity se queja mucho si se usa una estructura dentro de otra
+    //hay que encontrar la manera de tener esta informacion
     struct video{
         string title;
         string description;
@@ -73,6 +76,18 @@ contract BlockdemyCourse is ERC721 {
         _tokenUris[tokenId] = _uris;
     }
 
+
+
+    function addTokenUris(uint256 tokenId, string[] memory _uris)
+        public
+        TokenExists(tokenId)
+        IsOwner(tokenId)
+    {
+        for(uint i=0;i<_uris.length;i++){
+            _tokenUris[tokenId].push(_uris[i]);
+        }
+    }
+
     modifier TokenExists(uint256 tokenId) {
         require(_exists(tokenId), "token does not exist");
         _;
@@ -111,7 +126,7 @@ contract BlockdemyCourse is ERC721 {
         return newItemId;
     }
 
-    function deleteVideo(uint256 tokenId, string memory _hash)
+    function deleteUri(uint256 tokenId, string memory _hash)
         external
         TokenExists(tokenId)
         IsOwner(tokenId)
@@ -160,6 +175,7 @@ contract BlockdemyCourse is ERC721 {
         );
         TokenProps memory token = TokenProps(
             tokenId,
+            ownerOf(tokenId),
             _tokenPrices[tokenId],
             _tokenTitles[tokenId],
             _tokenDescriptions[tokenId],
@@ -176,6 +192,7 @@ contract BlockdemyCourse is ERC721 {
         for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
             TokenProps memory token = TokenProps(
                 i,
+                ownerOf(i),
                 _tokenPrices[i],
                 _tokenTitles[i],
                 _tokenDescriptions[i],

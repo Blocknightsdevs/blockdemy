@@ -1,13 +1,16 @@
 import React, { useRef, useEffect, useState } from "react";
 import Course from "./Course";
+import DisplayCourses from "./DisplayCourses";
 import BlockdemyCourse from "./contracts/BlockdemyCourse.json";
 import { getWeb3 } from "./Web3/utils.js";
+import { Container } from 'react-bootstrap';
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
   const [accounts, setAccounts] = useState(undefined);
   const [contract, setContract] = useState(undefined);
   const [networkId, setNetworkId] = useState(undefined);
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     const init = async () => {
@@ -24,10 +27,12 @@ function App() {
           BlockdemyCourse.abi,
           deployedNetwork && deployedNetwork.address
         );
+        const courses = await contract.methods.getAllCourses().call();
 
         setWeb3(web3);
         setAccounts(accounts);
         setContract(contract);
+        setCourses(courses);
       } catch (e) {}
     };
     init();
@@ -43,9 +48,10 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <Container  className="App">
       <Course contract={contract} accounts={accounts}></Course>
-    </div>
+      <DisplayCourses courses={courses} web3={web3}/>
+    </Container>
   );
 }
 
