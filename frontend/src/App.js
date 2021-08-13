@@ -50,7 +50,7 @@ function App() {
   return (
     <Container  className="App">
       <Course contract={contract} accounts={accounts}></Course>
-      <DisplayCourses courses={courses} web3={web3}/>
+      <DisplayCourses courses={courses} accounts={accounts} />
     </Container>
   );
 }
