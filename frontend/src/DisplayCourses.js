@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { Player } from 'video-react';
 import { Button,Input  } from 'react-bootstrap';
 import ModalSale from './ModalSale';
+import Web3 from 'web3';
 
 function DisplayCourses({ courses,accounts,contract }) {
 
@@ -36,6 +37,14 @@ function DisplayCourses({ courses,accounts,contract }) {
     window.location.reload();
   }
 
+  const buyCourse = async (course) => {
+    await contract.methods
+    .buyCourse(course.id)
+    .send({ from: accounts[0],value: course.price });
+    //should update state
+    window.location.reload();
+  }
+
   return courses.map((course) =>
     <div style={styleDiv}>
 
@@ -43,9 +52,9 @@ function DisplayCourses({ courses,accounts,contract }) {
 
      <div>Course name: {course.title}</div><br></br>
      <div>Owner: {course.owner}</div><br></br>
-     <div>Price: {course.price} USDT</div><br></br>
+     <div>Price: {Web3.utils.fromWei(course.price)} ETH</div><br></br>
      {accounts && accounts[0]!=course.owner && course.onSale ?
-      <Button>Buy Course</Button> : 
+      <Button onClick={() => buyCourse(course)}>Buy Course</Button> : 
       accounts && accounts[0]==course.owner && !course.onSale  ?
       <Button onClick={() => setCourseOnSale(course) }>Put On Sale</Button>:
       accounts && accounts[0]==course.owner && course.onSale  ?

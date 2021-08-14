@@ -3,7 +3,7 @@ import Course from "./Course";
 import DisplayCourses from "./DisplayCourses";
 import BlockdemyCourse from "./contracts/BlockdemyCourse.json";
 import { getWeb3 } from "./Web3/utils.js";
-import { Container } from 'react-bootstrap';
+import { Container } from "react-bootstrap";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -32,7 +32,7 @@ function App() {
         setWeb3(web3);
         setAccounts(accounts);
         setContract(contract);
-        setCourses(courses);
+        if(courses) setCourses(courses);
       } catch (e) {}
     };
     init();
@@ -48,9 +48,14 @@ function App() {
   }, []);
 
   return (
-    <Container  className="App">
+    <Container className="App">
       <Course contract={contract} accounts={accounts}></Course>
-      <DisplayCourses accounts={accounts} contract={contract}  courses={courses} accounts={accounts} />
+      <DisplayCourses
+        accounts={accounts}
+        contract={contract}
+        courses={courses}
+        accounts={accounts}
+      />
     </Container>
   );
 }

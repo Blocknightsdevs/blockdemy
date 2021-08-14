@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-
 contract BlockdemyCourse is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -24,7 +23,6 @@ contract BlockdemyCourse is ERC721 {
         string[] uris;
         bool onSale;
     }
-
 
     constructor() ERC721("BDEMY Course", "BDEMYC") {}
 
@@ -92,11 +90,13 @@ contract BlockdemyCourse is ERC721 {
 
     function notMoreOnSale(uint256 tokenId) external IsOwner(tokenId) TokenExists(tokenId){
             _tokenOnSale[tokenId] = false;
+            approve(address(0), tokenId);
     }
 
     function setOnSale(uint256 tokenId,uint amount) external IsOwner(tokenId) TokenExists(tokenId){
             _tokenOnSale[tokenId] = true;
             _tokenPrices[tokenId] = amount;
+            approve(address(this),tokenId);
     }
 
     /*
@@ -109,8 +109,7 @@ contract BlockdemyCourse is ERC721 {
         string memory _title,
         string memory _description,
         string[] memory _uris,
-        uint256 _price, //IN USDT
-        bool _sale
+        uint256 _price
     ) public returns (uint256) {
         require(_price > 0);
 
@@ -120,7 +119,7 @@ contract BlockdemyCourse is ERC721 {
         _mint(_owner, newItemId);
         setTokenPrice(newItemId, _price);
         setTokenUris(newItemId, _uris);
-        setTokenOnSale(newItemId, _sale);
+        setTokenOnSale(newItemId, false);
         setTokenTitle(newItemId, _title);
         setTokenDescription(newItemId, _description);
 
@@ -184,6 +183,14 @@ contract BlockdemyCourse is ERC721 {
             _tokenOnSale[tokenId]
         );
         return token;
+    }
+
+    function buyCourse(uint tokenId) external payable {
+        
+        require(_tokenPrices[tokenId] <= msg.value,'not enough funds');
+        this.transferFrom(ownerOf(tokenId), msg.sender, tokenId);
+        _tokenOnSale[tokenId] = false;
+
     }
 
     function getAllCourses() public view returns (TokenProps[] memory) {

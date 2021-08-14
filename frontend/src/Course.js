@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { InputGroup, FormControl, Button,Spinner } from "react-bootstrap";
+import Web3 from 'web3';
 
 const ipfsClient = require("ipfs-http-client");
 const ipfs = ipfsClient.create({
@@ -20,8 +21,9 @@ function Course({ contract, accounts }) {
 
   useEffect(() => {
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
+      console.log(accounts[0], title, description, paths, Web3.utils.toWei(price));
       contract.methods
-        .mintCourse(accounts[0], title, description, paths, price, onSale)
+        .mintCourse(accounts[0], title, description, paths, Web3.utils.toWei(price))
         .send({ from: accounts[0] });
       console.log(paths);
       setSaved(true);
@@ -44,6 +46,7 @@ function Course({ contract, accounts }) {
       });
       setPaths((paths) => [...paths, res.path]);
     });
+    
   };
 
   const captureFile = (event) => {
@@ -87,18 +90,13 @@ function Course({ contract, accounts }) {
           ></FormControl>
         </InputGroup>
         <InputGroup>
-          <InputGroup.Text id="basic-addon1"> Price: </InputGroup.Text>
+          <InputGroup.Text id="basic-addon1"> Price (ETH): </InputGroup.Text>
           <FormControl
             type="number"
+            step="0.0001"
             name="price"
             onChange={(e) => setPrice(e.target.value)}
           ></FormControl>
-          <InputGroup.Text id="basic-addon1">OnSale: </InputGroup.Text>
-          <InputGroup.Checkbox
-            type="checkbox"
-            name="onSale"
-            onChange={(e) => setOnSale(e.target.checked)}
-          ></InputGroup.Checkbox>
         </InputGroup>
         <InputGroup>
           <InputGroup.Text id="basic-addon1">File1: </InputGroup.Text>
