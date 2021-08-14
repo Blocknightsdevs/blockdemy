@@ -28,6 +28,14 @@ function DisplayCourses({ courses,accounts,contract }) {
     return JSON.stringify(obj) === JSON.stringify({});
   }
 
+  const notMoreOnSale = async (course) => {
+    await contract.methods
+    .notMoreOnSale(course.id)
+    .send({ from: accounts[0] });
+    //should update state
+    window.location.reload();
+  }
+
   return courses.map((course) =>
     <div style={styleDiv}>
 
@@ -39,7 +47,10 @@ function DisplayCourses({ courses,accounts,contract }) {
      {accounts && accounts[0]!=course.owner && course.onSale ?
       <Button>Buy Course</Button> : 
       accounts && accounts[0]==course.owner && !course.onSale  ?
-      <Button onClick={() => setCourseOnSale(course) }>Put On Sale</Button>:<></>}
+      <Button onClick={() => setCourseOnSale(course) }>Put On Sale</Button>:
+      accounts && accounts[0]==course.owner && course.onSale  ?
+      <Button onClick={() => notMoreOnSale(course)}>Not More On Sale</Button>
+      :<></>}
 
     {course.uris.map((uri) => {
       return <Player src={"https://ipfs.infura.io/ipfs/"+uri}></Player>;

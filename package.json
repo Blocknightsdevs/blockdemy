@@ -9,7 +9,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.2.0",
     "@openzeppelin/test-helpers": "^0.5.12",
-    "truffle": "^5.4.5"
+    "truffle": "^5.4.6"
   },
   "devDependencies": {},
   "scripts": {

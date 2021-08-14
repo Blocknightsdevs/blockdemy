@@ -90,6 +90,9 @@ contract BlockdemyCourse is ERC721 {
         _;
     }
 
+    function notMoreOnSale(uint256 tokenId) external IsOwner(tokenId) TokenExists(tokenId){
+            _tokenOnSale[tokenId] = false;
+    }
 
     function setOnSale(uint256 tokenId,uint amount) external IsOwner(tokenId) TokenExists(tokenId){
             _tokenOnSale[tokenId] = true;

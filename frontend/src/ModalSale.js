@@ -24,6 +24,8 @@ function ModalSale({ courseOnSale,setCourseOnSale,isEmpty,contract,accounts }) {
         .setOnSale(courseOnSale.id,courseOnSale.price)
         .send({ from: accounts[0] });
     handleClose();
+    //should update state
+    window.location.reload();
   };
   
   return (
