@@ -3,7 +3,7 @@ import { Player } from 'video-react';
 import { Button,Input  } from 'react-bootstrap';
 import ModalSale from './ModalSale';
 
-function DisplayCourses({ courses,accounts }) {
+function DisplayCourses({ courses,accounts,contract }) {
 
   const [courseOnSale, setCourseOnSale] = useState({});
 
@@ -31,12 +31,16 @@ function DisplayCourses({ courses,accounts }) {
   return courses.map((course) =>
     <div style={styleDiv}>
 
-     {!isEmpty(courseOnSale) ? <ModalSale courseOnSale={courseOnSale} setCourseOnSale={setCourseOnSale} isEmpty={isEmpty} /> : <></>}
+     {!isEmpty(courseOnSale) ? <ModalSale accounts={accounts} contract={contract} courseOnSale={courseOnSale} setCourseOnSale={setCourseOnSale} isEmpty={isEmpty} /> : <></>}
 
      <div>Course name: {course.title}</div><br></br>
      <div>Owner: {course.owner}</div><br></br>
      <div>Price: {course.price} USDT</div><br></br>
-    {accounts && accounts[0]!=course.owner ?<Button>Buy Course</Button> : <Button onClick={() => setCourseOnSale(course) }>Edit</Button>}
+     {accounts && accounts[0]!=course.owner && course.onSale ?
+      <Button>Buy Course</Button> : 
+      accounts && accounts[0]==course.owner && !course.onSale  ?
+      <Button onClick={() => setCourseOnSale(course) }>Put On Sale</Button>:<></>}
+
     {course.uris.map((uri) => {
       return <Player src={"https://ipfs.infura.io/ipfs/"+uri}></Player>;
     })}

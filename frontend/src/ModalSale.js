@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Modal, Button, InputGroup, FormControl } from "react-bootstrap";
 
-function ModalSale({ courseOnSale,setCourseOnSale,isEmpty }) {
+function ModalSale({ courseOnSale,setCourseOnSale,isEmpty,contract,accounts }) {
 
   const [show,setShow] = useState(!isEmpty(courseOnSale));
   
@@ -18,9 +18,11 @@ function ModalSale({ courseOnSale,setCourseOnSale,isEmpty }) {
     console.log(courseOnSale);
   },[]);
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    console.log(courseOnSale);
+    await contract.methods
+        .setOnSale(courseOnSale.id,courseOnSale.price)
+        .send({ from: accounts[0] });
     handleClose();
   };
   
@@ -28,7 +30,7 @@ function ModalSale({ courseOnSale,setCourseOnSale,isEmpty }) {
       <Modal show={show} onHide={handleClose}>
         <form method="post" onSubmit={(e) => submit(e)}>
           <Modal.Header closeButton>
-            <Modal.Title>Change sale details</Modal.Title>
+            <Modal.Title>Put On Sale</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {" "}
@@ -40,13 +42,6 @@ function ModalSale({ courseOnSale,setCourseOnSale,isEmpty }) {
                 value={courseOnSale.price}
                 onChange={(e) => setCourseOnSale({...courseOnSale,price:e.target.value})}
               ></FormControl>
-              <InputGroup.Text id="basic-addon1">OnSale: </InputGroup.Text>
-                <InputGroup.Checkbox
-                type="checkbox"
-                name="onSale"
-                value={courseOnSale.onSale}
-                onChange={(e) =>  setCourseOnSale({...courseOnSale,onSale:e.target.checked})}
-                ></InputGroup.Checkbox>
             </InputGroup>
           </Modal.Body>
           <Modal.Footer>
