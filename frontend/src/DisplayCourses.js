@@ -8,13 +8,6 @@ function DisplayCourses({ courses,accounts,contract }) {
 
   const [courseOnSale, setCourseOnSale] = useState({});
 
-  const styleDiv = {
-      width: "100%",
-      height: "auto",
-      border: "1px solid black"
-
-  };
-
   useEffect(() => {
     console.log(courseOnSale);
   },[courseOnSale]);
@@ -46,7 +39,7 @@ function DisplayCourses({ courses,accounts,contract }) {
   }
 
   return courses.map((course) =>
-    <div style={styleDiv}>
+    <div className="shadow courseItem">
 
      {!isEmpty(courseOnSale) ? <ModalSale accounts={accounts} contract={contract} courseOnSale={courseOnSale} setCourseOnSale={setCourseOnSale} isEmpty={isEmpty} /> : <></>}
 
@@ -61,9 +54,9 @@ function DisplayCourses({ courses,accounts,contract }) {
       <Button onClick={() => notMoreOnSale(course)}>Not More On Sale</Button>
       :<></>}
 
-    {course.uris.map((uri) => {
-      return <Player src={"https://ipfs.infura.io/ipfs/"+uri}></Player>;
-    })}
+      {course.uris.length > 0 ?
+      <Player src={"https://ipfs.infura.io/ipfs/"+course.uris[0]}></Player>:<></>
+      }
     </div>
   );
 }

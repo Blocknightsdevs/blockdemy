@@ -49,6 +49,7 @@ function App() {
 
   return (
     <Container className="App">
+      <h2>BlockDemy</h2>
       <Course contract={contract} accounts={accounts}></Course>
       <DisplayCourses
         accounts={accounts}

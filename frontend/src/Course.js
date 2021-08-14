@@ -28,6 +28,7 @@ function Course({ contract, accounts }) {
       console.log(paths);
       setSaved(true);
       setLoading(false);
+      window.location.reload();
     }
   }, [paths]);
 
@@ -46,7 +47,7 @@ function Course({ contract, accounts }) {
       });
       setPaths((paths) => [...paths, res.path]);
     });
-    
+
   };
 
   const captureFile = (event) => {
