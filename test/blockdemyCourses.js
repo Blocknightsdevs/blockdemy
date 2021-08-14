@@ -244,5 +244,32 @@ contract("Courses", (accounts) => {
 
   });
 
+  it.only("should put on sale", async () => {
+    let title = "course 1";
+    let description = "description of course 1";
+
+    const uris = [];
+
+    await bdemycInstance.mintCourse(
+      accounts[0],
+      title,
+      description,
+      uris,
+      1000,
+      true
+    );
+    
+    //set course on sale with 1000usd of value
+    await bdemycInstance.setOnSale(1,1000);
+
+    
+    const bdemyCourse = await bdemycInstance.getCourseById(1);  
+
+
+    assert(bdemyCourse.onSale,'Did not change onSale state');
+    assert(bdemyCourse.price,'Did not change price state');
+    
+  });
+
 
 });

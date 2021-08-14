@@ -25,14 +25,6 @@ contract BlockdemyCourse is ERC721 {
         bool onSale;
     }
 
-    //we will need to transform the string[] into video[]
-    //solidity se queja mucho si se usa una estructura dentro de otra
-    //hay que encontrar la manera de tener esta informacion
-    struct video{
-        string title;
-        string description;
-        string uri;
-    }
 
     constructor() ERC721("BDEMY Course", "BDEMYC") {}
 
@@ -96,6 +88,12 @@ contract BlockdemyCourse is ERC721 {
     modifier IsOwner(uint256 tokenId) {
         require(ownerOf(tokenId) == msg.sender, "caller is not the owner");
         _;
+    }
+
+
+    function setOnSale(uint256 tokenId,uint amount) external IsOwner(tokenId) TokenExists(tokenId){
+            _tokenOnSale[tokenId] = true;
+            _tokenPrices[tokenId] = amount;
     }
 
     /*
