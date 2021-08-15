@@ -3,9 +3,13 @@ import { Player } from "video-react";
 import { Button, Input } from "react-bootstrap";
 import ModalSale from "./ModalSale";
 import Web3 from "web3";
+import {
+  Redirect
+} from "react-router-dom";
 
 function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
   const [courseOnSale, setCourseOnSale] = useState({});
+  const [courseSelected, setCourseSelected] = useState(false);
 
   useEffect(() => {
     console.log(courseOnSale);
@@ -36,8 +40,7 @@ function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
   };
 
   const getAllVideos = async (course) => {
-    let videos = await contract.methods.getVideosOfCourse(course.id).call({ from: accounts[0] });
-    console.log(videos);
+    setCourseSelected(course);
   }
 
   return courses.map((course) => (
@@ -71,7 +74,11 @@ function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
       )}
 
       <Player src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}></Player>
-      <Button onClick={()=> getAllVideos(course)}>View All Videos</Button>
+      <Button onClick={()=> getAllVideos(course)}>View Course</Button>
+      {courseSelected ? 
+        <Redirect to={'/videos/'+courseSelected.id}/>
+        :<></>
+      }
     </div>
   ));
 }

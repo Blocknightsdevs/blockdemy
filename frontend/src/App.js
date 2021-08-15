@@ -1,10 +1,17 @@
 import React, { useRef, useEffect, useState } from "react";
-import Course from "./Course";
-import DisplayCourses from "./DisplayCourses";
 import BlockdemyCourse from "./contracts/BlockdemyCourse.json";
 import Blockdemy from "./contracts/Blockdemy.json";
 import { getWeb3 } from "./Web3/utils.js";
 import { Container } from 'react-bootstrap';
+import Home from "./Home";
+import Videos from "./Videos";
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -58,12 +65,30 @@ function App() {
     }
   }, []);
 
+
   return (
-    <Container  className="App">
-      <h1>Blockdemy</h1>
-      <Course contract={contract} accounts={accounts}></Course>
-      <DisplayCourses courses={courses} accounts={accounts} contract={contract}  bdemyContract={bdemyContract} />
-    </Container>
+      <Router>
+        <div>
+          <nav>
+            <ul>
+              <li>
+                <Link to="/">Home</Link>
+              </li>
+            </ul>
+          </nav>
+  
+          {/* A <Switch> looks through its children <Route>s and
+              renders the first one that matches the current URL. */}
+          <Switch>
+            <Route path="/videos/:course_id">
+              <Videos contract={contract}  accounts={accounts} />
+            </Route>
+            <Route path="/">
+              <Home contract={contract} accounts={accounts} courses={courses} bdemyContract={bdemyContract} />
+            </Route>
+          </Switch>
+        </div>
+      </Router>
   );
 }
 
