@@ -13,32 +13,37 @@ import {
   NavLink 
 } from "react-router-dom";
 
-//bdemy token 0x610178dA211FEF7D417bC0e6FeD39F05609AD788
-const blockdemyCourseAddress="0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const blockdemyAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e";
+/*
+BlockdemyCourse deployed to: 0x4631BCAbD6dF18D94796344963cB60d44a4136b6
+BlockdemyToken deployed to: 0x86A2EE8FAf9A840F7a2c64CA3d51209F9A02081D
+Blockdemy deployed to: 0xA4899D35897033b927acFCf422bc745916139776  
+*/
+
+const blockdemyCourseAddress="0x4631BCAbD6dF18D94796344963cB60d44a4136b6";
+const blockdemyTokenAddress="0x86A2EE8FAf9A840F7a2c64CA3d51209F9A02081D";
+const blockdemyAddress="0xA4899D35897033b927acFCf422bc745916139776";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
   const [accounts, setAccounts] = useState(undefined);
   const [contract, setContract] = useState(undefined);
   const [bdemyContract, setBdemyContract] = useState(undefined);
-  const [networkId, setNetworkId] = useState(undefined);
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     const init = async () => {
       try {
         const web3 = await getWeb3();
-        //console.log(web3);
+       
 
         const accounts = await web3.eth.getAccounts();
-        const networkId = await web3.eth.net.getId();
-        setNetworkId(networkId);
-
+        
 
         const contract = new web3.eth.Contract(BlockdemyCourse.abi,blockdemyCourseAddress);
+        console.log(contract);
         const bdemyContract = new web3.eth.Contract(Blockdemy.abi,blockdemyAddress);
-
+        console.log(bdemyContract);        
+        console.log('hola');
         const courses = await contract.methods.getAllCourses().call();
 
         setWeb3(web3);
@@ -46,7 +51,6 @@ function App() {
         setContract(contract);
         setBdemyContract(bdemyContract);
         setCourses(courses);
-        console.log('hola');
       } catch (e) {}
     };
     init();

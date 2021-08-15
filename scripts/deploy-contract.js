@@ -15,6 +15,9 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
+
+  const [deployer] = await hre.ethers.getSigners();
+  
   const BlockdemyCourse = await hre.ethers.getContractFactory("BlockdemyCourse");
   const BlockdemyToken = await hre.ethers.getContractFactory("BlockdemyToken");
   const Blockdemy = await hre.ethers.getContractFactory("Blockdemy");
@@ -25,12 +28,11 @@ async function main() {
   await blockdemyCourse.deployed();
   await blockdemyToken.deployed();
 
-  const [deployer] = await hre.ethers.getSigners();
-  
   const blockdemy = await Blockdemy.deploy([deployer.address],blockdemyCourse.address,blockdemyToken.address);
 
   let totalSupply = "100000000000000000000000000000"; //100BN TOKENS blockdemyToken
-  blockdemyToken.mintTokens(blockdemy.address, ethers.BigNumber.from(totalSupply), {
+  let totalSupplyBN = ethers.BigNumber.from(totalSupply);
+  await blockdemyToken.mintTokens(blockdemy.address, totalSupplyBN, {
     from: deployer.address,
   });
 
@@ -39,6 +41,7 @@ async function main() {
   console.log("BlockdemyCourse deployed to:", blockdemyCourse.address);
   console.log("BlockdemyToken deployed to:", blockdemyToken.address);
   console.log("Blockdemy deployed to:", blockdemy.address);
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
