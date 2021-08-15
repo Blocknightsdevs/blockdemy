@@ -6,7 +6,19 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 
 contract BlockdemyToken is ERC20 {
-    constructor(uint256 totalSupply) ERC20("Blockdemy", "BDEMY") {
-        _mint(address(this), totalSupply);
+
+    address owner;
+
+    constructor() ERC20("Blockdemy", "BDEMY") {
+        owner = msg.sender;
+    }
+
+    function mintTokens(address _to,uint _amount) external onlyOwner(){
+        _mint(_to,_amount);
+    }
+
+    modifier onlyOwner{
+        require(owner==msg.sender);
+        _;
     }
 }

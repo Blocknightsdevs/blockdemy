@@ -3,9 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract BlockdemyCourse is ERC721 {
     using Counters for Counters.Counter;
+    using SafeMath for uint256;
     Counters.Counter private _tokenIds;
 
     mapping(uint256 => string[]) private _tokenUris;
@@ -13,6 +15,7 @@ contract BlockdemyCourse is ERC721 {
     mapping(uint256 => bool) private _tokenOnSale;
     mapping(uint256 => string) private _tokenTitles;
     mapping(uint256 => string) private _tokenDescriptions;
+    mapping(uint256 => address) private _tokenCreators;
 
     struct TokenProps {
         uint256 id;
@@ -50,6 +53,14 @@ contract BlockdemyCourse is ERC721 {
         _tokenOnSale[tokenId] = _sale;
     }
 
+    function setTokenCreator(uint256 tokenId, address _address)
+        public
+        TokenExists(tokenId)
+        IsOwner(tokenId)
+    {
+        _tokenCreators[tokenId] = _address;
+    }
+
     function setTokenPrice(uint256 tokenId, uint256 _price)
         public
         TokenExists(tokenId)
@@ -66,14 +77,12 @@ contract BlockdemyCourse is ERC721 {
         _tokenUris[tokenId] = _uris;
     }
 
-
-
     function addTokenUris(uint256 tokenId, string[] memory _uris)
         public
         TokenExists(tokenId)
         IsOwner(tokenId)
     {
-        for(uint i=0;i<_uris.length;i++){
+        for (uint256 i = 0; i < _uris.length; i++) {
             _tokenUris[tokenId].push(_uris[i]);
         }
     }
@@ -88,15 +97,23 @@ contract BlockdemyCourse is ERC721 {
         _;
     }
 
-    function notMoreOnSale(uint256 tokenId) external IsOwner(tokenId) TokenExists(tokenId){
-            _tokenOnSale[tokenId] = false;
-            approve(address(0), tokenId);
+    function notMoreOnSale(uint256 tokenId)
+        external
+        IsOwner(tokenId)
+        TokenExists(tokenId)
+    {
+        _tokenOnSale[tokenId] = false;
+        approve(address(0), tokenId);
     }
 
-    function setOnSale(uint256 tokenId,uint amount) external IsOwner(tokenId) TokenExists(tokenId){
-            _tokenOnSale[tokenId] = true;
-            _tokenPrices[tokenId] = amount;
-            approve(address(this),tokenId);
+    function setOnSale(uint256 tokenId, uint256 amount)
+        external
+        IsOwner(tokenId)
+        TokenExists(tokenId)
+    {
+        _tokenOnSale[tokenId] = true;
+        _tokenPrices[tokenId] = amount;
+        approve(address(this), tokenId);
     }
 
     /*
@@ -122,6 +139,7 @@ contract BlockdemyCourse is ERC721 {
         setTokenOnSale(newItemId, false);
         setTokenTitle(newItemId, _title);
         setTokenDescription(newItemId, _description);
+        setTokenCreator(newItemId,msg.sender);
 
         return newItemId;
     }
@@ -185,12 +203,21 @@ contract BlockdemyCourse is ERC721 {
         return token;
     }
 
-    function buyCourse(uint tokenId) external payable {
-        
-        require(_tokenPrices[tokenId] <= msg.value,'not enough funds');
-        this.transferFrom(ownerOf(tokenId), msg.sender, tokenId);
+    function transferCourse(uint256 tokenId,address _to) external TokenExists(tokenId){
+        this.transferFrom(ownerOf(tokenId), _to, tokenId);
         _tokenOnSale[tokenId] = false;
+    }
 
+    function getCreator(uint tokenId) external view TokenExists(tokenId) returns(address){
+        return _tokenCreators[tokenId];
+    }
+
+    function getCourseFees(uint256 tokenId) external view TokenExists(tokenId) returns (uint256){
+        return _tokenPrices[tokenId].div(5); //royalty 20%
+    }
+
+    function getCoursePrice(uint tokenId) external view TokenExists(tokenId) returns (uint256){
+        return _tokenPrices[tokenId];
     }
 
     function getAllCourses() public view returns (TokenProps[] memory) {

@@ -4,7 +4,7 @@ import { Button,Input  } from 'react-bootstrap';
 import ModalSale from './ModalSale';
 import Web3 from 'web3';
 
-function DisplayCourses({ courses,accounts,contract }) {
+function DisplayCourses({ courses,accounts,contract,bdemyContract }) {
 
   const [courseOnSale, setCourseOnSale] = useState({});
 
@@ -31,7 +31,7 @@ function DisplayCourses({ courses,accounts,contract }) {
   }
 
   const buyCourse = async (course) => {
-    await contract.methods
+    await bdemyContract.methods
     .buyCourse(course.id)
     .send({ from: accounts[0],value: course.price });
     //should update state
@@ -39,7 +39,7 @@ function DisplayCourses({ courses,accounts,contract }) {
   }
 
   return courses.map((course) =>
-    <div className="shadow courseItem">
+    <div key={course.id} className="shadow courseItem">
 
      {!isEmpty(courseOnSale) ? <ModalSale accounts={accounts} contract={contract} courseOnSale={courseOnSale} setCourseOnSale={setCourseOnSale} isEmpty={isEmpty} /> : <></>}
 

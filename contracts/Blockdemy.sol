@@ -14,11 +14,30 @@ contract Blockdemy is Ownable {
 
     constructor(
         address payable[] memory _owners,
-        BlockdemyCourse _blockdemycourse,
-        BlockdemyToken _blockdemyToken
+        address _blockdemycourse_address,
+        address _blockdemyToken_address
     ) {
         owners = _owners;
-        blockdemycourse = _blockdemycourse;
-        blockdemyToken = _blockdemyToken;
+        blockdemycourse = BlockdemyCourse(_blockdemycourse_address);
+        blockdemyToken = BlockdemyToken(_blockdemyToken_address);
+    }
+
+    //i put this here because maybe we can take 0.1% of royalties or 
+    //something like that, should think about it,
+    //also bdemycourse is an erc721 so it does not handle payments
+    function buyCourse(uint256 tokenId) external payable {
+        require(blockdemycourse.getCoursePrice(tokenId) <= msg.value,'not enogh funds');
+        uint256 fees = 0;
+        if (
+            blockdemycourse.getCreator(tokenId) !=
+            blockdemycourse.ownerOf(tokenId)
+        ) {
+            fees = blockdemycourse.getCourseFees(tokenId);
+            payable(blockdemycourse.getCreator(tokenId)).transfer(fees);
+        }
+
+        payable(blockdemycourse.ownerOf(tokenId)).transfer(msg.value - fees);
+
+        blockdemycourse.transferCourse(tokenId,msg.sender);
     }
 }

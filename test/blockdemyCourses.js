@@ -1,10 +1,14 @@
 const { expectRevert } = require("@openzeppelin/test-helpers");
 const BlockdemyCourse = artifacts.require("BlockdemyCourse.sol");
+const Blockdemy = artifacts.require("Blockdemy.sol");
+const BlockdemyToken = artifacts.require("BlockdemyToken.sol");
 //const BN = require('bn.js');
 
-contract("Courses", (accounts) => {
+contract("BlockDemy", (accounts) => {
   beforeEach(async () => {
     bdemycInstance = await BlockdemyCourse.new();
+    bdemycToken = await BlockdemyCourse.new();
+    bDemyInstance = await Blockdemy.new([accounts[0]],bdemycInstance.address,bdemycToken.address);
   });
 
   it("should mint course", async () => {
@@ -18,8 +22,7 @@ contract("Courses", (accounts) => {
       title,
       description,
       uris,
-      1000,
-      true
+      1000
     );
     const bdemyCourses = await bdemycInstance.getAllCourses();
 
@@ -29,7 +32,6 @@ contract("Courses", (accounts) => {
     assert(Owner === accounts[0], "Did not mint to owner");
 
     assert(bdemyCourses[0].price == 1000, "Did not put correct price");
-    assert(bdemyCourses[0].onSale, "Did not put correct sale");
     console.log(bdemyCourses[0].uris)
   });
 
@@ -69,24 +71,21 @@ contract("Courses", (accounts) => {
       title,
       description,
       uris,
-      1000,
-      true
+      1000
     );
     await bdemycInstance.mintCourse(
       accounts[0],
       title,
       description,
       uris2,
-      1000,
-      true
+      1000
     );
     await bdemycInstance.mintCourse(
       accounts[0],
       title,
       description,
       uris3,
-      1000,
-      true
+      1000
     );
 
     await bdemycInstance.deleteUri(2, "ddaddwawdd2");
@@ -121,8 +120,7 @@ contract("Courses", (accounts) => {
       title,
       description,
       uris,
-      1000,
-      true
+      1000
     );
 
     await expectRevert(
@@ -173,24 +171,21 @@ contract("Courses", (accounts) => {
       title,
       description,
       uris,
-      1000,
-      true
+      1000
     );
     await bdemycInstance.mintCourse(
       accounts[0],
       title2,
       description2,
       uris2,
-      2000,
-      true
+      2000
     );
     await bdemycInstance.mintCourse(
       accounts[0],
       title3,
       description3,
       uris3,
-      3000,
-      true
+      3000
     );
 
     const bdemyCourse1 = await bdemycInstance.getCourseById(1);
@@ -205,7 +200,6 @@ contract("Courses", (accounts) => {
       "wrong description retreived"
     );
     assert(bdemyCourse1.price == 1000, "wrong 1000 retreived");
-    assert(bdemyCourse1.onSale, "wrong onSale retreived");
   });
 
 
@@ -227,8 +221,7 @@ contract("Courses", (accounts) => {
       title,
       description,
       uris,
-      1000,
-      true
+      1000
     );
 
     await bdemycInstance.addTokenUris(1,['new video uri']);
@@ -244,7 +237,7 @@ contract("Courses", (accounts) => {
 
   });
 
-  it.only("should put on sale", async () => {
+  it("should put on sale", async () => {
     let title = "course 1";
     let description = "description of course 1";
 
@@ -255,8 +248,7 @@ contract("Courses", (accounts) => {
       title,
       description,
       uris,
-      1000,
-      true
+      1000
     );
     
     //set course on sale with 1000usd of value
@@ -271,5 +263,32 @@ contract("Courses", (accounts) => {
     
   });
 
+  it("should buy on sale", async () => {
+    let title = "course 1";
+    let description = "description of course 1";
+
+    const uris = [];
+
+    await bdemycInstance.mintCourse(
+      accounts[0],
+      title,
+      description,
+      uris,
+      1000
+    );
+    
+    //set course on sale with 1000usd of value
+    await bdemycInstance.setOnSale(1,1000);
+
+    
+    const bdemyCourse = await bdemycInstance.getCourseById(1);  
+
+
+    assert(bdemyCourse.onSale,'Did not change onSale state');
+    assert(bdemyCourse.price,'Did not change price state');
+
+    await bDemyInstance.buyCourse(1,{from:accounts[0],value:1000});
+    
+  });
 
 });

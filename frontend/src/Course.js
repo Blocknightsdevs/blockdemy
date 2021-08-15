@@ -20,12 +20,13 @@ function Course({ contract, accounts }) {
   const [laoding, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log(paths.length);
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
       console.log(accounts[0], title, description, paths, Web3.utils.toWei(price));
       contract.methods
         .mintCourse(accounts[0], title, description, paths, Web3.utils.toWei(price))
         .send({ from: accounts[0] });
-      console.log(paths);
+
       setSaved(true);
       setLoading(false);
       window.location.reload();
