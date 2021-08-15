@@ -20,7 +20,6 @@ function Course({ contract, accounts }) {
   const [laoding, setLoading] = useState(false);
 
   useEffect(() => {
-    console.log(paths.length);
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
       console.log(accounts[0], title, description, paths, Web3.utils.toWei(price));
       contract.methods
@@ -29,7 +28,6 @@ function Course({ contract, accounts }) {
 
       setSaved(true);
       setLoading(false);
-      window.location.reload();
     }
   }, [paths]);
 
@@ -46,6 +44,8 @@ function Course({ contract, accounts }) {
         }
         console.log(result[0].hash, description);
       });
+      
+      console.log(res);
       setPaths((paths) => [...paths, res.path]);
     });
 

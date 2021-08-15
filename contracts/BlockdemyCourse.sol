@@ -23,8 +23,14 @@ contract BlockdemyCourse is ERC721 {
         uint256 price;
         string title;
         string description;
-        string[] uris;
+        string videos_preview;
         bool onSale;
+    }
+
+    struct VideoProps {
+        uint256 id_course;
+        string uri;
+        string title;
     }
 
     constructor() ERC721("BDEMY Course", "BDEMYC") {}
@@ -139,7 +145,7 @@ contract BlockdemyCourse is ERC721 {
         setTokenOnSale(newItemId, false);
         setTokenTitle(newItemId, _title);
         setTokenDescription(newItemId, _description);
-        setTokenCreator(newItemId,msg.sender);
+        setTokenCreator(newItemId, msg.sender);
 
         return newItemId;
     }
@@ -197,27 +203,75 @@ contract BlockdemyCourse is ERC721 {
             _tokenPrices[tokenId],
             _tokenTitles[tokenId],
             _tokenDescriptions[tokenId],
-            _tokenUris[tokenId],
+            _tokenUris[tokenId][0],
             _tokenOnSale[tokenId]
         );
         return token;
     }
 
-    function transferCourse(uint256 tokenId,address _to) external TokenExists(tokenId){
+    function transferCourse(uint256 tokenId, address _to)
+        external
+        TokenExists(tokenId)
+    {
         this.transferFrom(ownerOf(tokenId), _to, tokenId);
         _tokenOnSale[tokenId] = false;
     }
 
-    function getCreator(uint tokenId) external view TokenExists(tokenId) returns(address){
+    function getCreator(uint256 tokenId)
+        external
+        view
+        TokenExists(tokenId)
+        returns (address)
+    {
         return _tokenCreators[tokenId];
     }
 
-    function getCourseFees(uint256 tokenId) external view TokenExists(tokenId) returns (uint256){
+    function getCourseFees(uint256 tokenId)
+        external
+        view
+        TokenExists(tokenId)
+        returns (uint256)
+    {
         return _tokenPrices[tokenId].div(5); //royalty 20%
     }
 
-    function getCoursePrice(uint tokenId) external view TokenExists(tokenId) returns (uint256){
+    function getCoursePrice(uint256 tokenId)
+        external
+        view
+        TokenExists(tokenId)
+        returns (uint256)
+    {
         return _tokenPrices[tokenId];
+    }
+
+    function getVideosOfCourse(uint256 tokenId)
+        public
+        view
+        returns (VideoProps[] memory)
+    {
+        uint256 tokenVideoLenght;
+
+        string[] memory videos = _tokenUris[tokenId];
+        //if owner gets all videos else just the first
+        if (ownerOf(tokenId) == msg.sender) {
+            tokenVideoLenght = videos.length;
+        } else {
+            tokenVideoLenght = 1;
+        }
+
+        VideoProps[] memory tokens = new VideoProps[](tokenVideoLenght);
+        uint256 counter = 0;
+
+        for (uint256 i = 0; i < tokenVideoLenght; i++) {
+            VideoProps memory token = VideoProps(
+                tokenId,
+                _tokenUris[tokenId][i],
+                "title"
+            );
+            tokens[counter] = token;
+            counter++;
+        }
+        return tokens;
     }
 
     function getAllCourses() public view returns (TokenProps[] memory) {
@@ -231,7 +285,7 @@ contract BlockdemyCourse is ERC721 {
                 _tokenPrices[i],
                 _tokenTitles[i],
                 _tokenDescriptions[i],
-                _tokenUris[i],
+                _tokenUris[i][0],
                 _tokenOnSale[i]
             );
             tokens[counter] = token;
