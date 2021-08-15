@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
-import BlockdemyCourse from "./contracts/BlockdemyCourse.json";
-import Blockdemy from "./contracts/Blockdemy.json";
+import BlockdemyCourse from "./artifacts/contracts/BlockdemyCourse.sol/BlockdemyCourse.json";
+import Blockdemy from "./artifacts/contracts/Blockdemy.sol/Blockdemy.json";
 import { getWeb3 } from "./Web3/utils.js";
 import { Container } from 'react-bootstrap';
 import Home from "./Home";
@@ -12,6 +12,10 @@ import {
   Route,
   NavLink 
 } from "react-router-dom";
+
+//bdemy token 0x610178dA211FEF7D417bC0e6FeD39F05609AD788
+const blockdemyCourseAddress="0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const blockdemyAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -31,18 +35,10 @@ function App() {
         const networkId = await web3.eth.net.getId();
         setNetworkId(networkId);
 
-        const deployedNetwork = BlockdemyCourse.networks[networkId];
-        const contract = new web3.eth.Contract(
-          BlockdemyCourse.abi,
-          deployedNetwork && deployedNetwork.address
-        );
 
-        const deployedBdemyNetwork = Blockdemy.networks[networkId];
-        const bdemyContract = new web3.eth.Contract(
-          Blockdemy.abi,
-          deployedBdemyNetwork && deployedBdemyNetwork.address
-        );
-      
+        const contract = new web3.eth.Contract(BlockdemyCourse.abi,blockdemyCourseAddress);
+        const bdemyContract = new web3.eth.Contract(Blockdemy.abi,blockdemyAddress);
+
         const courses = await contract.methods.getAllCourses().call();
 
         setWeb3(web3);
