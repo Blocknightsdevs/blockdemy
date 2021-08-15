@@ -1,2 +1,2 @@
 # blockdemy
-Blockdemy is going to be an educational ecosystem where instructors are the owners of NFTs that represents each course, within this ecosystem there can be investors that want to buy this courses as NFTs that also will have some royalties, so the instructors might want to sell their courses rights to others instructors, the videos are going to be stored on a descentralized way and students will collect blockdemy tokens when they finalize a course, those tokens are going to be accepted as payment along with other cryptocurrencies.
+Blockdemy is going to be an educational ecosystem where instructors are the owners of NFTs
