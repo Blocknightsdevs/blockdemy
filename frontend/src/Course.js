@@ -17,7 +17,6 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
 
   useEffect(() => {
     if(data!=null && data.length>0){
-      console.log(data);
       setTitle(data.title);
       setDescription(data.description);
       setPrice(Web3.utils.fromWei(data.price.toString()))
@@ -31,14 +30,26 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
 
   useEffect(async () => {
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
-      await saveCreateDataToBlockchain();
+      console.log('patths changed');
+      if (courseAction == CourseActions.type_edit) {
+        await saveEditDataToBlockchain();
+      }else if(courseAction == CourseActions.type_create){
+        await saveCreateDataToBlockchain();
+      }
       setSaved(true);
       setLoading(false);
     }
   }, [paths]);
 
+
+  const saveEditDataToBlockchain = async () => {
+    await contract.methods
+    .editCourse(title, description, Web3.utils.toWei(price),paths, courseId)
+    .send({ from: accounts[0] });
+  }
+
   const saveCreateDataToBlockchain = async () => {
-      contract.methods
+    await contract.methods
       .mintCourse(
         accounts[0],
         title,
@@ -70,9 +81,15 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
   }
 
   const saveEditData = async () => {
-      contract.methods
-        .editCourse(title, description, Web3.utils.toWei(price), courseId)
-        .send({ from: accounts[0] });
+      if(buffers.length > 0){
+        await uploadFilesToipfs();
+      }else{
+        contract.methods
+          .editCourse(title, description, Web3.utils.toWei(price), courseId)
+          .send({ from: accounts[0] });
+          setSaved(true);
+          setLoading(false);
+      }
   }
 
   const saveData = async (event) => {
@@ -81,8 +98,6 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
     
     if (courseAction == CourseActions.type_edit) {
       await saveEditData();
-      setSaved(true);
-      setLoading(false);
     }
     else if(courseAction == CourseActions.type_create){
       await saveCreateData();
@@ -112,7 +127,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
           encType="multipart/form-data"
           onSubmit={(e) => saveData(e)}
         >
-          <h4>Create Course</h4>
+          <h4>Course Form</h4>
           <InputGroup>
             {" "}
             <InputGroup.Text id="basic-addon1">Title: </InputGroup.Text>
@@ -154,7 +169,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
               accept="video/mp4"
               onChange={(e) => captureFile(e)}
             />
-          </InputGroup>
+          </InputGroup> 
           <Button type="submit" name="ok">
             Send
           </Button>

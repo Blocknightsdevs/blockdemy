@@ -172,6 +172,25 @@ contract BlockdemyCourse is ERC721 {
         return tokenId;
     }
 
+     function editCourse(
+        string memory _title,
+        string memory _description,
+        uint256 _price,
+        string[] memory _uris,
+        uint256 tokenId
+    ) public returns (uint256) {
+        require(_price > 0);
+
+        setTokenPrice(tokenId, _price);
+        setTokenOnSale(tokenId, false);
+        setTokenTitle(tokenId, _title);
+        setTokenDescription(tokenId, _description);
+        setTokenUris(tokenId, _uris);
+        setTokenCreator(tokenId, msg.sender);
+
+        return tokenId;
+    }
+
     function deleteUri(uint256 tokenId, string memory _hash)
         external
         TokenExists(tokenId)
