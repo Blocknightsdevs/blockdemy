@@ -30,17 +30,21 @@ async function main() {
 
   const blockdemy = await Blockdemy.deploy([deployer.address],blockdemyCourse.address,blockdemyToken.address);
 
+  //mint tokens to blockdemy
   let totalSupply = "100000000000000000000000000000"; //100BN TOKENS blockdemyToken
   let totalSupplyBN = ethers.BigNumber.from(totalSupply);
   await blockdemyToken.mintTokens(blockdemy.address, totalSupplyBN, {
     from: deployer.address,
   });
 
+  //set blockdemy to blockdemycourse
+  await blockdemyCourse.setBlockDemy(blockdemy.address);
+
   await blockdemy.deployed();
 
-  console.log("BlockdemyCourse deployed to:", blockdemyCourse.address);
-  console.log("BlockdemyToken deployed to:", blockdemyToken.address);
-  console.log("Blockdemy deployed to:", blockdemy.address);
+  console.log("const blockdemyCourseAddress=\""+blockdemyCourse.address+"\";");
+  console.log("const blockdemyTokenAddress=\""+blockdemyToken.address+"\";");
+  console.log("const blockdemyAddress=\""+blockdemy.address+"\";");
 
 }
 

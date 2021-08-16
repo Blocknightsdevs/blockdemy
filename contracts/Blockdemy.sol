@@ -42,4 +42,12 @@ contract Blockdemy is Ownable {
         blockdemycourse.transferCourse(tokenId,msg.sender);
         //who buys the course receives some blockdemy tokens, i put a random number but should see how many
     }
+
+    function increaseVisibility(uint256 tokenId,uint256 amount) external payable{
+        console.log(amount,msg.sender);
+        //transfer tokens
+        blockdemyToken.transferFrom(msg.sender, address(this), amount);
+        //increase visibility
+        blockdemycourse.increaseCourseVisibility(tokenId,amount);
+    }
 }

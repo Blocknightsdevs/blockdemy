@@ -7,9 +7,23 @@ import {
   Redirect
 } from "react-router-dom";
 
-function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
+function DisplayCourses({ courses, accounts, contract, bdemyContract,bdemyTokenContract }) {
   const [courseOnSale, setCourseOnSale] = useState({});
   const [courseSelected, setCourseSelected] = useState(false);
+  const [balance, setBalance] = useState(0);
+
+
+  useEffect(() => {
+
+    const init = async () => {
+      if(typeof bdemyTokenContract != 'undefined'){
+        let balance = await bdemyTokenContract.methods.balanceOf(accounts[0]).call();
+        console.log(balance,'balance!!!');
+        setBalance(balance);
+      }
+    }
+    init();
+  },[bdemyTokenContract]);
 
   useEffect(() => {
     console.log(courseOnSale);
@@ -24,6 +38,15 @@ function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
 
     return JSON.stringify(obj) === JSON.stringify({});
   };
+
+  const increaseVisibility = async (course) => {
+
+    await bdemyTokenContract.methods.approve(bdemyContract._address,Web3.utils.toWei("1000")).send({from:accounts[0]});
+
+    await bdemyContract.methods.increaseVisibility(course.id,Web3.utils.toWei("1000")).send({ from: accounts[0] });
+    //should update state
+    window.location.reload();
+  }
 
   const notMoreOnSale = async (course) => {
     await contract.methods.notMoreOnSale(course.id).send({ from: accounts[0] });
@@ -68,11 +91,17 @@ function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
       ) : accounts && accounts[0] == course.owner && !course.onSale ? (
         <Button onClick={() => setCourseOnSale(course)}>Put On Sale</Button>
       ) : accounts && accounts[0] == course.owner && course.onSale ? (
-        <Button onClick={() => notMoreOnSale(course)}>Not More On Sale</Button>
+        <>
+          <Button onClick={() => notMoreOnSale(course)}>Not More On Sale</Button>
+          <Button disabled={balance==0} onClick={() => increaseVisibility(course)}>Increase Visibility</Button>
+         
+         
+        </>
       ) : (
         <></>
       )}
-
+      <hr></hr>
+      Course Visibility: {course.visibility}
       <Player src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}></Player>
       <Button onClick={()=> getAllVideos(course)}>View Course</Button>
       {courseSelected ? 
