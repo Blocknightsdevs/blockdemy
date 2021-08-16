@@ -132,11 +132,6 @@ contract BlockdemyCourse is ERC721 {
         approve(address(this), tokenId);
     }
 
-    /*
-        MINT COURSE DOES A MINT OF THE COURSE WITH ALL THE VIDEOS, IT MUST BE CALLED WHEN THE   
-        INSTRUCTOR HAS ALREADY DEFINED THE COURSE IN ITS ENTIRETY (OR AT LEAST THINKS SO), SINCE WE WILL ADD
-        OPTIONS TO REMOVE AND POST VIDEOS LATER, BUT REMEMBER THAT EACH INTERACTION COSTS MONEY
-    */
     function mintCourse(
         address _owner,
         string memory _title,
@@ -158,6 +153,23 @@ contract BlockdemyCourse is ERC721 {
         setTokenCreator(newItemId, msg.sender);
 
         return newItemId;
+    }
+
+     function editCourse(
+        string memory _title,
+        string memory _description,
+        uint256 _price,
+        uint256 tokenId
+    ) public returns (uint256) {
+        require(_price > 0);
+
+        setTokenPrice(tokenId, _price);
+        setTokenOnSale(tokenId, false);
+        setTokenTitle(tokenId, _title);
+        setTokenDescription(tokenId, _description);
+        setTokenCreator(tokenId, msg.sender);
+
+        return tokenId;
     }
 
     function deleteUri(uint256 tokenId, string memory _hash)

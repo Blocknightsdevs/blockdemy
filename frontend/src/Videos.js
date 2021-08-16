@@ -1,36 +1,35 @@
-import React,{useEffect,useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Player } from "video-react";
-import {
-    useParams
-  } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-export default function Videos({contract,accounts}) {
-
+export default function Videos({ contract, accounts }) {
   let { course_id } = useParams();
   const [videos, setVideos] = useState([]);
-    
+
   useEffect(() => {
-    const init = async () => { 
-        console.log('videos did mount');
-        let videos = await contract.methods.getVideosOfCourse(course_id).call({ from: accounts[0] });
-        setVideos(videos);  
+    const init = async () => {
+      console.log("videos did mount");
+      let videos = await contract.methods
+        .getVideosOfCourse(course_id)
+        .call({ from: accounts[0] });
+      setVideos(videos);
     };
 
     init();
-  },[]);
-    
-  useEffect(() => {
-    console.log(videos);
-  },[videos]);
-
-    return (
-        <>
-            <h1>Blockdemy - view Course</h1>
-            {videos && videos.length>0 ?
-                videos.map(video => {return (<Player src={"https://ipfs.infura.io/ipfs/" + video.uri}></Player>) })
-                :
-                <div>No videos to show</div>
-            
-            }
-        </>)
+  }, []);
+  
+  return (
+    <>
+      <h1>Blockdemy - view Course</h1>
+      {videos && videos.length > 0 ? (
+        videos.map((video) => {
+          return (
+            <Player src={"https://ipfs.infura.io/ipfs/" + video.uri}></Player>
+          );
+        })
+      ) : (
+        <div>No videos to show</div>
+      )}
+    </>
+  );
 }

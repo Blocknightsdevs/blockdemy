@@ -7,6 +7,7 @@ import { Container } from "react-bootstrap";
 import Home from "./Home";
 import Videos from "./Videos";
 import MyCourses from "./MyCourses";
+import EditCourse from "./EditCourse";
 import {
   BrowserRouter as Router,
   Switch,
@@ -14,9 +15,9 @@ import {
   NavLink,
 } from "react-router-dom";
 
-const blockdemyCourseAddress="0x3C15538ED063e688c8DF3d571Cb7a0062d2fB18D";
-const blockdemyTokenAddress="0xccf1769D8713099172642EB55DDFFC0c5A444FE9";
-const blockdemyAddress="0x3904b8f5b0F49cD206b7d5AABeE5D1F37eE15D8d";
+const blockdemyCourseAddress = "0x2625760C4A8e8101801D3a48eE64B2bEA42f1E96";
+const blockdemyTokenAddress = "0xFE5f411481565fbF70D8D33D992C78196E014b90";
+const blockdemyAddress = "0xD6b040736e948621c5b6E0a494473c47a6113eA8";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -48,12 +49,14 @@ function App() {
         );
 
         const _courses = await contract.methods.getAllCourses().call();
-        const _mycourses = await contract.methods.getMyCourses().call({from:accounts[0]});
+        const _mycourses = await contract.methods
+          .getMyCourses()
+          .call({ from: accounts[0] });
         console.log(_mycourses);
 
         let copy = [..._courses];
-        
-        copy.sort((a,b) => parseInt(b.visibility)-parseInt(a.visibility));
+
+        copy.sort((a, b) => parseInt(b.visibility) - parseInt(a.visibility));
 
         setWeb3(web3);
         setAccounts(accounts);
@@ -75,7 +78,6 @@ function App() {
       });
     }
   }, []);
-
 
   return (
     <Router>
@@ -104,11 +106,20 @@ function App() {
       {/* A <Switch> looks through its children <Route>s and
               renders the first one that matches the current URL. */}
       <Switch>
+        <Route path="/course_edit/:course_id">
+          <EditCourse contract={contract} accounts={accounts} />
+        </Route>
         <Route path="/videos/:course_id">
           <Videos contract={contract} accounts={accounts} />
         </Route>
         <Route path="/mycourses">
-          <MyCourses  contract={contract} accounts={accounts} mycourses={mycourses} bdemyTokenContract={bdemyTokenContract} bdemyContract={bdemyContract} />
+          <MyCourses
+            contract={contract}
+            accounts={accounts}
+            mycourses={mycourses}
+            bdemyTokenContract={bdemyTokenContract}
+            bdemyContract={bdemyContract}
+          />
         </Route>
         <Route path="/">
           <Home

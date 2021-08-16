@@ -4,26 +4,33 @@ import Web3 from "web3";
 import { Button, Input } from "react-bootstrap";
 import ModalSale from "./ModalSale";
 import { Player } from "video-react";
-import {
-    Redirect
-  } from "react-router-dom";
+import { Redirect } from "react-router-dom";
+import CourseActions from "./Utils/CourseActions";
 
-export default function MyCourses({ contract, accounts, mycourses,bdemyTokenContract,bdemyContract }) {
+export default function MyCourses({
+  contract,
+  accounts,
+  mycourses,
+  bdemyTokenContract,
+  bdemyContract,
+}) {
   const [courseOnSale, setCourseOnSale] = useState({});
   const [balance, setBalance] = useState(0);
-  const [courseSelected, setCourseSelected] = useState(false);
+  const [goToVideos, setGoTovideos] = useState(false);
+  const [goToEdition, setGoToEdition] = useState(false);
 
   useEffect(() => {
-
     const init = async () => {
-      if(typeof bdemyTokenContract != 'undefined'){
-        let balance = await bdemyTokenContract.methods.balanceOf(accounts[0]).call();
-        console.log(balance,'balance!!!');
+      if (typeof bdemyTokenContract != "undefined") {
+        let balance = await bdemyTokenContract.methods
+          .balanceOf(accounts[0])
+          .call();
+        console.log(balance, "balance!!!");
         setBalance(balance);
       }
-    }
+    };
     init();
-  },[bdemyTokenContract]);
+  }, [bdemyTokenContract]);
 
   const isEmpty = (obj) => {
     for (var prop in obj) {
@@ -54,13 +61,24 @@ export default function MyCourses({ contract, accounts, mycourses,bdemyTokenCont
     window.location.reload();
   };
 
-  const getAllVideos = async (course) => {
-    setCourseSelected(course);
+  const goToVideosPage = async (course) => {
+    setGoTovideos({course_id:course.id});
+  };
+
+  const goToEditionPage = async (course) => {
+    setGoToEdition({course_id:course.id});
   }
+
   return (
     <>
       <h1>Blockdemy - My courses</h1>
-      <Course contract={contract} accounts={accounts}></Course>
+
+      <Course
+        contract={contract}
+        accounts={accounts}
+        courseAction={CourseActions.type_create}
+      ></Course>
+
       {mycourses.map((course) => (
         <div key={course.id} className="shadow courseItem">
           {!isEmpty(courseOnSale) ? (
@@ -80,6 +98,8 @@ export default function MyCourses({ contract, accounts, mycourses,bdemyTokenCont
           <br></br>
           <div>Price: {Web3.utils.fromWei(course.price)} ETH</div>
           <br></br>
+          Course Visibility: {course.visibility}
+          <br></br>
           {accounts && accounts[0] == course.owner && !course.onSale ? (
             <Button onClick={() => setCourseOnSale(course)}>Put On Sale</Button>
           ) : accounts && accounts[0] == course.owner && course.onSale ? (
@@ -94,16 +114,19 @@ export default function MyCourses({ contract, accounts, mycourses,bdemyTokenCont
                 Increase Visibility
               </Button>
             </>
-          ) : (<></>)}
-
-            Course Visibility: {course.visibility}
-            <Player src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}></Player>
-            <Button onClick={()=> getAllVideos(course)}>View Course</Button>
-            <Button onClick={()=> alert('edit course '+course.id)}>Edit Course</Button>
-            {courseSelected ? 
-                <Redirect to={'/videos/'+courseSelected.id}/>
-                :<></>
-            }
+          ) : (
+            <></>
+          )}
+          <Button onClick={() => goToVideosPage(course)}>View Course</Button>
+          <Button onClick={() => goToEditionPage(course)}>
+            Edit Course
+          </Button>
+          <Player
+            src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}
+          ></Player>
+          
+          {goToVideos ? (<Redirect to={"/videos/" + goToVideos.course_id} />) : (<></>)}
+          {goToEdition ? (<Redirect to={"/course_edit/" + goToEdition.course_id} />) : (<></>)}
 
         </div>
       ))}

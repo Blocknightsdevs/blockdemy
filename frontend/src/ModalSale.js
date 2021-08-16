@@ -9,8 +9,7 @@ function ModalSale({
   contract,
   accounts,
 }) {
-
-    console.log(contract);
+  console.log(contract);
   const [show, setShow] = useState(!isEmpty(courseOnSale));
   const [price, setPrice] = useState(0);
 
