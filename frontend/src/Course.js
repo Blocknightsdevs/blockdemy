@@ -174,7 +174,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
             />
           </InputGroup> 
           <Button type="submit" name="ok">
-            Send
+            Save course
           </Button>
         </form>
       )}

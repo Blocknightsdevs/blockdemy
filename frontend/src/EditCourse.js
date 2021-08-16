@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Course from "./Course";
 import CourseActions from "./Utils/CourseActions";
 import { useParams } from "react-router-dom";
+import CourseVideos from './CourseVideos';
 
 export default function EditCourse({ contract, accounts }) {
 
@@ -33,13 +34,16 @@ export default function EditCourse({ contract, accounts }) {
     <>
       <h1>Blockdemy - Course Edit</h1>
       {courseData && courseData.length > 0 ?
-      <Course
-        contract={contract}
-        accounts={accounts}
-        courseAction={CourseActions.type_edit}
-        courseId={course_id}
-        cData={courseData}
-      ></Course>
+      <>
+        <Course
+            contract={contract}
+            accounts={accounts}
+            courseAction={CourseActions.type_edit}
+            courseId={course_id}
+            cData={courseData}
+        ></Course>
+        <CourseVideos />
+      </>
       : <div>Loading data</div>}
     </>
   );

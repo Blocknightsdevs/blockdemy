@@ -40,10 +40,9 @@ contract BlockdemyCourse is ERC721 {
 
     constructor() ERC721("BDEMY Course", "BDEMYC") {}
 
-
     function setBlockDemy(address _blockdemy) external {
-        if(blockdemy==address(0)){
-            blockdemy=_blockdemy;
+        if (blockdemy == address(0)) {
+            blockdemy = _blockdemy;
         }
     }
 
@@ -95,7 +94,7 @@ contract BlockdemyCourse is ERC721 {
         _tokenUris[tokenId] = _uris;
     }
 
-    function increaseCourseVisibility(uint256 tokenId,uint256 amount)
+    function increaseCourseVisibility(uint256 tokenId, uint256 amount)
         public
         TokenExists(tokenId)
         IsBlockDemy
@@ -155,7 +154,7 @@ contract BlockdemyCourse is ERC721 {
         return newItemId;
     }
 
-     function editCourse(
+    function editCourse(
         string memory _title,
         string memory _description,
         uint256 _price,
@@ -172,7 +171,7 @@ contract BlockdemyCourse is ERC721 {
         return tokenId;
     }
 
-     function editCourse(
+    function editCourse(
         string memory _title,
         string memory _description,
         uint256 _price,
@@ -318,11 +317,12 @@ contract BlockdemyCourse is ERC721 {
     }
 
     function getMyCourses() public view returns (CourseProps[] memory) {
-        CourseProps[] memory tokens = new CourseProps[](_tokenIds.current());
+        uint256 numberOfTokens = getNumberOfTokens(msg.sender);
+        CourseProps[] memory tokens = new CourseProps[](numberOfTokens);
         uint256 counter = 0;
 
         for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
-            if(ownerOf(i)==msg.sender){
+            if (ownerOf(i) == msg.sender) {
                 CourseProps memory token = CourseProps(
                     i,
                     ownerOf(i),
@@ -339,13 +339,28 @@ contract BlockdemyCourse is ERC721 {
         }
 
         //of counter is 0 no course met, we can know the size until we do the for
-        if(counter == 0){
+        if (counter == 0) {
             return new CourseProps[](0);
         }
 
         return tokens;
     }
 
+    function getNumberOfTokens(address owner)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 counter = 0;
+
+        for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
+            if (ownerOf(i) == owner) {
+                counter++;
+            }
+        }
+
+        return counter;
+    }
 
     function getAllCourses() public view returns (CourseProps[] memory) {
         CourseProps[] memory tokens = new CourseProps[](_tokenIds.current());
