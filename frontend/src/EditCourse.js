@@ -11,20 +11,23 @@ export default function EditCourse({ contract, accounts }) {
   useEffect(() => {
     const init = async () => {
 
-      let course = await contract.methods
-        .getCourseById(course_id)
-        .call({ from: accounts[0] });
-      setCourseData(course);
+        if(typeof accounts!='undefined' && typeof contract!='undefined'){
+            let course = await contract.methods
+                .getCourseById(course_id)
+                .call({ from: accounts[0] });
+            setCourseData(course);
+        }
       
     };
 
     init();
-  }, []);
+  }, [contract,accounts]);
 
   useEffect(() => {
 
     console.log("course edit did update",courseData);
   }, [courseData]);
+
 
   return (
     <>

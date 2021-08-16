@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState  } from "react";
 import BlockdemyCourse from "./artifacts/contracts/BlockdemyCourse.sol/BlockdemyCourse.json";
 import BlockdemyToken from "./artifacts/contracts/BlockdemyToken.sol/BlockdemyToken.json";
 import Blockdemy from "./artifacts/contracts/Blockdemy.sol/Blockdemy.json";
@@ -15,9 +15,9 @@ import {
   NavLink,
 } from "react-router-dom";
 
-const blockdemyCourseAddress="0x7B4f352Cd40114f12e82fC675b5BA8C7582FC513";
-const blockdemyTokenAddress="0xcE0066b1008237625dDDBE4a751827de037E53D2";
-const blockdemyAddress="0x82EdA215Fa92B45a3a76837C65Ab862b6C7564a8"; 
+const blockdemyCourseAddress="0x8fC8CFB7f7362E44E472c690A6e025B80E406458";
+const blockdemyTokenAddress="0xC7143d5bA86553C06f5730c8dC9f8187a621A8D4";
+const blockdemyAddress="0x359570B3a0437805D0a71457D61AD26a28cAC9A2";    
 
 function App() {
   const [web3, setWeb3] = useState(undefined);

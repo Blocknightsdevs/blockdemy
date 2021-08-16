@@ -38,6 +38,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
       }
       setSaved(true);
       setLoading(false);
+      window.location.reload();
     }
   }, [paths]);
 
@@ -84,11 +85,12 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
       if(buffers.length > 0){
         await uploadFilesToipfs();
       }else{
-        contract.methods
+        await contract.methods
           .editCourse(title, description, Web3.utils.toWei(price), courseId)
           .send({ from: accounts[0] });
           setSaved(true);
           setLoading(false);
+          window.location.reload();
       }
   }
 
@@ -106,6 +108,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
 
   const captureFile = (event) => {
     event.preventDefault();
+    setBuffers([]);
     const file = event.target.files[0];
     const reader = new window.FileReader();
     reader.readAsArrayBuffer(file);

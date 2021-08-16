@@ -8,16 +8,18 @@ export default function Videos({ contract, accounts }) {
 
   useEffect(() => {
     const init = async () => {
-      console.log("videos did mount");
-      let videos = await contract.methods
-        .getVideosOfCourse(course_id)
-        .call({ from: accounts[0] });
-      setVideos(videos);
+      if (typeof accounts != "undefined" && typeof contract != "undefined") {
+        console.log("videos did mount", contract);
+        let videos = await contract.methods
+          .getVideosOfCourse(course_id)
+          .call({ from: accounts[0] });
+        setVideos(videos);
+      }
     };
 
     init();
-  }, []);
-  
+  }, [contract, accounts]);
+
   return (
     <>
       <h1>Blockdemy - view Course</h1>
