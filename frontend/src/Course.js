@@ -74,6 +74,7 @@ function Course({ contract, accounts }) {
         enctype="multipart/form-data"
         onSubmit={(e) => saveData(e)}
       >
+        <h4>Create Course</h4>
         <InputGroup>
           {" "}
           <InputGroup.Text id="basic-addon1">Title: </InputGroup.Text>

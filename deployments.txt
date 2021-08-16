@@ -1,0 +1,45 @@
+KOVAN:
+
+   Deploying 'BlockdemyCourse'
+   ---------------------------
+   > transaction hash:    0x95606e3511e88da88dc74f82b2b8284bc16d904b0049ef645ae89c0f795fb45c
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xF54d70fF8eFEbB967D3c7b497b8E36077a15A74A
+   > block number:        26781320
+   > block timestamp:     1628995004
+   > account:             0x6a010A7E3A2A991e5D7368ADC94AF4852C7d40C3
+   > balance:             1.014730949625599558
+   > gas used:            4285447 (0x416407)
+   > gas price:           1.1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0047139917 ETH
+
+
+   Deploying 'BlockdemyToken'
+   --------------------------
+   > transaction hash:    0xb938c3dbaffd14438a5f6075e4dbe436ccbe193da966851fc6176ad21afd9dea
+   > Blocks: 0            Seconds: 4
+   > contract address:    0x88912F7DE94896169f8dB0737E8849F2ADfb4172
+   > block number:        26781321
+   > block timestamp:     1628995012
+   > account:             0x6a010A7E3A2A991e5D7368ADC94AF4852C7d40C3
+   > balance:             1.013286078725599558
+   > gas used:            1313519 (0x140aef)
+   > gas price:           1.1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0014448709 ETH
+
+
+   Deploying 'Blockdemy'
+   ---------------------
+   > transaction hash:    0x5def2c6c48ff58a5066a419a0399ccfdfab9bcd536a29be7e8b2650042686f24
+   > Blocks: 1            Seconds: 8
+   > contract address:    0x456c609c6d283732e5c471d9c75560C81B3D92FC
+   > block number:        26781323
+   > block timestamp:     1628995024
+   > account:             0x6a010A7E3A2A991e5D7368ADC94AF4852C7d40C3
+   > balance:             1.012286308525599558
+   > gas used:            908882 (0xdde52)
+   > gas price:           1.1 gwei
+   > value sent:          0 ETH
+   > total cost:          0.0009997702 ETH

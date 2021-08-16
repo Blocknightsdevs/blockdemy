@@ -286,6 +286,36 @@ contract BlockdemyCourse is ERC721 {
         return tokens;
     }
 
+    function getMyCourses() public view returns (CourseProps[] memory) {
+        CourseProps[] memory tokens = new CourseProps[](_tokenIds.current());
+        uint256 counter = 0;
+
+        for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
+            if(ownerOf(i)==msg.sender){
+                CourseProps memory token = CourseProps(
+                    i,
+                    ownerOf(i),
+                    _tokenPrices[i],
+                    _tokenTitles[i],
+                    _tokenDescriptions[i],
+                    _tokenUris[i][0],
+                    _tokenOnSale[i],
+                    _tokenVisibility[i]
+                );
+                tokens[counter] = token;
+                counter++;
+            }
+        }
+
+        //of counter is 0 no course met, we can know the size until we do the for
+        if(counter == 0){
+            return new CourseProps[](0);
+        }
+
+        return tokens;
+    }
+
+
     function getAllCourses() public view returns (CourseProps[] memory) {
         CourseProps[] memory tokens = new CourseProps[](_tokenIds.current());
         uint256 counter = 0;

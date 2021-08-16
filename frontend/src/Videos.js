@@ -25,8 +25,7 @@ export default function Videos({contract,accounts}) {
 
     return (
         <>
-            <h1>Blockdemy - view Vourse</h1>
-            <div> We will show the videos of course { course_id } here</div>
+            <h1>Blockdemy - view Course</h1>
             {videos && videos.length>0 ?
                 videos.map(video => {return (<Player src={"https://ipfs.infura.io/ipfs/" + video.uri}></Player>) })
                 :

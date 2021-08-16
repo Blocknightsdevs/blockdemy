@@ -1,11 +1,9 @@
 import React from "react";
-import Course from "./Course";
 import DisplayCourses from "./DisplayCourses";
 export default function Home({contract,accounts,courses,bdemyContract,bdemyTokenContract}) {
     return (
         <>
-            <h1>Blockdemy</h1>
-            <Course contract={contract} accounts={accounts}></Course>
-            <DisplayCourses courses={courses} accounts={accounts} contract={contract}  bdemyContract={bdemyContract} bdemyTokenContract={bdemyTokenContract}/>
+            <h1>Blockdemy The new way to promote your courses</h1>
+            <DisplayCourses courses={courses} accounts={accounts}  bdemyContract={bdemyContract} />
     </>)
 }

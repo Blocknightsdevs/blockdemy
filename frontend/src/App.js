@@ -14,9 +14,9 @@ import {
   NavLink,
 } from "react-router-dom";
 
-const blockdemyCourseAddress = "0x5133BBdfCCa3Eb4F739D599ee4eC45cBCD0E16c5";
-const blockdemyTokenAddress = "0x71089Ba41e478702e1904692385Be3972B2cBf9e";
-const blockdemyAddress = "0x8F4ec854Dd12F1fe79500a1f53D0cbB30f9b6134";
+const blockdemyCourseAddress="0x3C15538ED063e688c8DF3d571Cb7a0062d2fB18D";
+const blockdemyTokenAddress="0xccf1769D8713099172642EB55DDFFC0c5A444FE9";
+const blockdemyAddress="0x3904b8f5b0F49cD206b7d5AABeE5D1F37eE15D8d";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -25,6 +25,7 @@ function App() {
   const [bdemyContract, setBdemyContract] = useState(undefined);
   const [bdemyTokenContract, setBdemyTokenContract] = useState(undefined);
   const [courses, setCourses] = useState([]);
+  const [mycourses, setMyCourses] = useState([]);
 
   useEffect(() => {
     const init = async () => {
@@ -47,6 +48,8 @@ function App() {
         );
 
         const _courses = await contract.methods.getAllCourses().call();
+        const _mycourses = await contract.methods.getMyCourses().call({from:accounts[0]});
+        console.log(_mycourses);
 
         let copy = [..._courses];
         
@@ -58,6 +61,7 @@ function App() {
         setBdemyContract(bdemyContract);
         setBdemyTokenContract(tokenContract);
         setCourses(copy);
+        setMyCourses(_mycourses);
       } catch (e) {}
     };
     init();
@@ -104,7 +108,7 @@ function App() {
           <Videos contract={contract} accounts={accounts} />
         </Route>
         <Route path="/mycourses">
-          <MyCourses />
+          <MyCourses  contract={contract} accounts={accounts} mycourses={mycourses} bdemyTokenContract={bdemyTokenContract} bdemyContract={bdemyContract} />
         </Route>
         <Route path="/">
           <Home
