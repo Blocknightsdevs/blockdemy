@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import BlockdemyCourse from "./artifacts/contracts/BlockdemyCourse.sol/BlockdemyCourse.json";
 import BlockdemyToken from "./artifacts/contracts/BlockdemyToken.sol/BlockdemyToken.json";
 import Blockdemy from "./artifacts/contracts/Blockdemy.sol/Blockdemy.json";
-import { getWeb3 } from "./Web3/utils.js";
+import { getWeb3 } from "./Utils/Web3.js";
 import { Container } from "react-bootstrap";
 import Home from "./Home";
 import Videos from "./Videos";

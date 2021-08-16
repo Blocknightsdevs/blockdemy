@@ -99,6 +99,7 @@ export default function MyCourses({ contract, accounts, mycourses,bdemyTokenCont
             Course Visibility: {course.visibility}
             <Player src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}></Player>
             <Button onClick={()=> getAllVideos(course)}>View Course</Button>
+            <Button onClick={()=> alert('edit course '+course.id)}>Edit Course</Button>
             {courseSelected ? 
                 <Redirect to={'/videos/'+courseSelected.id}/>
                 :<></>

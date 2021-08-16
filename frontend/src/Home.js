@@ -1,5 +1,6 @@
 import React from "react";
 import DisplayCourses from "./DisplayCourses";
+
 export default function Home({contract,accounts,courses,bdemyContract,bdemyTokenContract}) {
     return (
         <>

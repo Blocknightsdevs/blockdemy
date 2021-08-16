@@ -1,19 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
 import { InputGroup, FormControl, Button,Spinner } from "react-bootstrap";
 import Web3 from 'web3';
-
-const ipfsClient = require("ipfs-http-client");
-const ipfs = ipfsClient.create({
-  host: "ipfs.infura.io",
-  port: 5001,
-  protocol: "https",
-});
+import ipfs from './Utils/Ipfs';
 
 function Course({ contract, accounts }) {
   const [title, setTitle] = useState(null);
   const [description, setDescription] = useState(null);
   const [price, setPrice] = useState(null);
-  const [onSale, setOnSale] = useState(null);
   const [buffers, setBuffers] = useState([]);
   const [paths, setPaths] = useState([]);
   const [saved, setSaved] = useState(false);
@@ -102,25 +95,7 @@ function Course({ contract, accounts }) {
           ></FormControl>
         </InputGroup>
         <InputGroup>
-          <InputGroup.Text id="basic-addon1">File1: </InputGroup.Text>
-          <FormControl
-            type="file"
-            name="file[]"
-            multiple
-            id="file"
-            accept="video/mp4"
-            onChange={(e) => captureFile(e)}
-          />
-          <InputGroup.Text id="basic-addon1">File2: </InputGroup.Text>
-          <FormControl
-            type="file"
-            name="file[]"
-            multiple
-            id="file"
-            accept="video/mp4"
-            onChange={(e) => captureFile(e)}
-          />
-          <InputGroup.Text id="basic-addon1">File3: </InputGroup.Text>
+          <InputGroup.Text id="basic-addon1">Course Preview: </InputGroup.Text>
           <FormControl
             type="file"
             name="file[]"
