@@ -5,7 +5,7 @@ import Blockdemy from "./artifacts/contracts/Blockdemy.sol/Blockdemy.json";
 import { getWeb3 } from "./Utils/Web3.js";
 import { Container } from "react-bootstrap";
 import Home from "./Home";
-import Videos from "./Videos";
+import ViewCourse from "./ViewCourse";
 import MyCourses from "./MyCourses";
 import EditCourse from "./EditCourse";
 import {
@@ -109,8 +109,8 @@ function App() {
         <Route path="/course_edit/:course_id">
           <EditCourse contract={contract} accounts={accounts} />
         </Route>
-        <Route path="/videos/:course_id">
-          <Videos contract={contract} accounts={accounts} />
+        <Route path="/course_view/:course_id">
+          <ViewCourse contract={contract} accounts={accounts} />
         </Route>
         <Route path="/mycourses">
           <MyCourses

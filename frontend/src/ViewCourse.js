@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Player } from "video-react";
 import { useParams } from "react-router-dom";
 
-export default function Videos({ contract, accounts }) {
+export default function ViewCourse({ contract, accounts }) {
   let { course_id } = useParams();
   const [videos, setVideos] = useState([]);
 

@@ -61,11 +61,11 @@ export default function MyCourses({
     window.location.reload();
   };
 
-  const goToVideosPage = async (course) => {
+  const goToViewCourse = async (course) => {
     setGoTovideos({course_id:course.id});
   };
 
-  const goToEditionPage = async (course) => {
+  const goToEditCourse = async (course) => {
     setGoToEdition({course_id:course.id});
   }
 
@@ -117,15 +117,15 @@ export default function MyCourses({
           ) : (
             <></>
           )}
-          <Button onClick={() => goToVideosPage(course)}>View Course</Button>
-          <Button onClick={() => goToEditionPage(course)}>
+          <Button onClick={() => goToViewCourse(course)}>View Course</Button>
+          <Button onClick={() => goToEditCourse(course)}>
             Edit Course
           </Button>
           <Player
             src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}
           ></Player>
           
-          {goToVideos ? (<Redirect to={"/videos/" + goToVideos.course_id} />) : (<></>)}
+          {goToVideos ? (<Redirect to={"/course_view/" + goToVideos.course_id} />) : (<></>)}
           {goToEdition ? (<Redirect to={"/course_edit/" + goToEdition.course_id} />) : (<></>)}
 
         </div>
