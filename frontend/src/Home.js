@@ -10,7 +10,7 @@ export default function Home({
 }) {
   return (
     <>
-      <h1>Blockdemy The new way to teach and earn learning</h1>
+      <h1>Blockdemy - The new way to teach and earn learning</h1>
       <DisplayCourses
         courses={courses}
         accounts={accounts}

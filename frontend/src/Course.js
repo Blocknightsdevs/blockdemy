@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import { InputGroup, FormControl, Button, Spinner } from "react-bootstrap";
+import { InputGroup, FormControl, Button, Spinner,ProgressBar  } from "react-bootstrap";
 import Web3 from "web3";
 import ipfs from "./Utils/Ipfs";
 import CourseActions from "./Utils/CourseActions";
@@ -7,12 +7,14 @@ import CourseActions from "./Utils/CourseActions";
 function Course({ contract, accounts, courseAction, courseId,cData }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(0.00001);
   const [buffers, setBuffers] = useState([]);
   const [paths, setPaths] = useState([]);
   const [saved, setSaved] = useState(false);
   const [laoding, setLoading] = useState(false);
   const [data,setData] = useState(null);
+  const [fileUploading,setFileUploading] = useState(null);
+  const [progress,setProgress] = useState(0);
 
 
   useEffect(() => {
@@ -45,7 +47,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
 
   const saveEditDataToBlockchain = async () => {
     await contract.methods
-    .editCourse(title, description, Web3.utils.toWei(price),paths, courseId)
+    .editCourse(title, description, Web3.utils.toWei(price.toString()),paths, courseId)
     .send({ from: accounts[0] });
   }
 
@@ -56,14 +58,19 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
         title,
         description,
         paths,
-        Web3.utils.toWei(price)
+        Web3.utils.toWei(price.toString())
       )
       .send({ from: accounts[0] });
   }
 
+  let progress_func = function (len) {
+    let progress = 100 * (len/fileUploading.size)
+    setProgress(progress);
+  } 
+
   const uploadFilesToipfs = async () => {
     await buffers.forEach(async (bufferElement) => {
-      let res = await ipfs.add(bufferElement, async (error, result) => {
+      let res = await ipfs.add(bufferElement, {progress: progress_func}, async (error, result) => {
         console.log("Ipfs result", result);
         if (error) {
           console.error(error);
@@ -86,7 +93,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
         await uploadFilesToipfs();
       }else{
         await contract.methods
-          .editCourse(title, description, Web3.utils.toWei(price), courseId)
+          .editCourse(title, description, Web3.utils.toWei(price.toString()), courseId)
           .send({ from: accounts[0] });
           setSaved(true);
           setLoading(false);
@@ -112,7 +119,8 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
     const file = event.target.files[0];
     const reader = new window.FileReader();
     reader.readAsArrayBuffer(file);
-
+    setFileUploading(file);
+    setProgress(0);
     reader.onloadend = () => {
       setBuffers((buffers) => [...buffers, Buffer(reader.result)]);
     };
@@ -121,16 +129,13 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
   return (
     <>
       {laoding ? (
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        <ProgressBar animated now={progress} />
       ) : (
         <form
           method="post"
           encType="multipart/form-data"
           onSubmit={(e) => saveData(e)}
         >
-          <h4>Course Form</h4>
           <InputGroup>
             {" "}
             <InputGroup.Text id="basic-addon1">Title: </InputGroup.Text>
@@ -154,7 +159,8 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
             <InputGroup.Text id="basic-addon1"> Price (ETH): </InputGroup.Text>
             <FormControl
               type="number"
-              step="0.0001"
+              step="0.00001"
+              min="0.00001"
               name="price"
               value={price}
               onChange={(e) => setPrice(e.target.value)}

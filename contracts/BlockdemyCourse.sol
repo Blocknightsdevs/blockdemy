@@ -164,11 +164,16 @@ contract BlockdemyCourse is ERC721 {
     {
         uint256 index = getTokenIndexByHash(tokenId, _hash);
         string[] memory uris = _tokenUris[tokenId];
+        string[] memory titles = _videoTitles[tokenId];
+        require(uris.length>1,'cant delete preview video');
         for (uint256 i = index; i < uris.length - 1; i++) {
             uris[i] = uris[i + 1];
+            titles[i] = titles[i + 1];
         }
         _tokenUris[tokenId] = uris;
+        _videoTitles[tokenId] = titles;
         _tokenUris[tokenId].pop();
+        _videoTitles[tokenId].pop();
     }
 
     function getTokenIndexByHash(uint256 tokenId, string memory _hash)
@@ -177,7 +182,7 @@ contract BlockdemyCourse is ERC721 {
         returns (uint256)
     {
         string[] memory uris = _tokenUris[tokenId];
-        for (uint256 i = 0; i < uris.length - 1; i++) {
+        for (uint256 i = 0; i < uris.length; i++) {    
             if (compareStrings(uris[i], _hash)) {
                 return i;
             }
@@ -340,7 +345,6 @@ contract BlockdemyCourse is ERC721 {
     }
 
     modifier TokenExists(uint256 tokenId) {
-        console.log(tokenId);
         require(_exists(tokenId), "token does not exist");
         _;
     }
@@ -351,7 +355,6 @@ contract BlockdemyCourse is ERC721 {
     }
 
     modifier IsBlockDemy() {
-        console.log(msg.sender);
         require(blockdemy == msg.sender, "caller is not blockdemy");
         _;
     }

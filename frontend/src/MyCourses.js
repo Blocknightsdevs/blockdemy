@@ -71,7 +71,7 @@ export default function MyCourses({
 
   return (
     <>
-      <h1>Blockdemy - My courses</h1>
+      <h1>Blockdemy - My Courses</h1>
 
       <Course
         contract={contract}

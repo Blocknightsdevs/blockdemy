@@ -50,7 +50,8 @@ function ModalSale({
             <InputGroup.Text id="basic-addon1">Price: </InputGroup.Text>
             <FormControl
               type="number"
-              step="0.0001"
+              step="0.00001"
+              min="0.00001"
               name="price"
               value={price}
               onChange={(e) => setPrice(e.target.value)}

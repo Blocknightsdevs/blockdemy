@@ -14,11 +14,14 @@ function DisplayCourses({ courses, accounts, bdemyContract }) {
 
   return courses.map((course) => (
     <div key={course.id} className="shadow courseItem">
-      <div>Course name: {course.title}</div>
+       <hr></hr>
+      <div><h4>Course name: {course.title} - Visibility {course.visibility}</h4></div>
       <br></br>
       <div>Owner: {course.owner}</div>
       <br></br>
       <div>Price: {Web3.utils.fromWei(course.price)} ETH</div>
+      <br></br>
+      <div>Description: {course.description}</div>
       <br></br>
       {accounts && accounts[0] != course.owner && course.onSale ? (
         <Button variant="success" onClick={() => buyCourse(course)}>
@@ -30,7 +33,8 @@ function DisplayCourses({ courses, accounts, bdemyContract }) {
         <></>
       )}
       <hr></hr>
-      Course Visibility: {course.visibility}
+      <br></br>
+      Preview:
       <Player
         src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}
       ></Player>

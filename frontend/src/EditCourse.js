@@ -21,6 +21,7 @@ export default function EditCourse({ contract, accounts }) {
           .getVideosOfCourse(course_id)
           .call({ from: accounts[0] });
         setVideos(videos);
+        console.log(videos);
       }
     };
 
@@ -31,9 +32,16 @@ export default function EditCourse({ contract, accounts }) {
     console.log("course edit did update", courseData);
   }, [courseData]);
 
+  const deleteVideo = async (video) => {
+    await contract.methods
+          .deleteUri(course_id,video.uri)
+          .send({ from: accounts[0] });
+    window.location.reload();
+  }
+
   return (
     <>
-      <h1>Blockdemy - Course Edit</h1>
+      <h1>Blockdemy - Edit Course</h1>
       {courseData && courseData.length > 0 ? (
         <>
           <Course
@@ -52,7 +60,6 @@ export default function EditCourse({ contract, accounts }) {
             <thead>
               <tr>
                 <th>Video Title</th>
-                <th>Preview</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -61,8 +68,7 @@ export default function EditCourse({ contract, accounts }) {
                 return (
                   <tr>
                     <td>{video.title} </td> 
-                    <td> Preview </td>
-                    <td> edit - view - delete </td>
+                    <td> <a href="#">view</a> {videos.length > 1 &&  <a href="#" onClick={()=> deleteVideo(video)}> delete</a> } </td>
                   </tr>
                 );
               })}

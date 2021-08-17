@@ -22,11 +22,14 @@ export default function ViewCourse({ contract, accounts }) {
 
   return (
     <>
-      <h1>Blockdemy - view Course</h1>
+      <h1>Blockdemy - View Course</h1>
       {videos && videos.length > 0 ? (
         videos.map((video) => {
           return (
-            <Player src={"https://ipfs.infura.io/ipfs/" + video.uri}></Player>
+            <>
+              <h3>{video.title}</h3>
+              <Player src={"https://ipfs.infura.io/ipfs/" + video.uri}></Player>
+            </>
           );
         })
       ) : (

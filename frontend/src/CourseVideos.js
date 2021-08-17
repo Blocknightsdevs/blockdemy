@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { InputGroup, FormControl, Button, Spinner } from "react-bootstrap";
+import { InputGroup, FormControl, Button, Spinner,ProgressBar  } from "react-bootstrap";
 import ipfs from "./Utils/Ipfs";
 
 export default function CourseVideos({accounts,contract,courseId}) {
@@ -10,6 +10,8 @@ export default function CourseVideos({accounts,contract,courseId}) {
   const [saved, setSaved] = useState(false);
   const [laoding, setLoading] = useState(false);
   const [title, setTitle] = useState('');
+  const [fileUploading,setFileUploading] = useState(null);
+  const [progress,setProgress] = useState(0);
 
   useEffect(async () => {
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
@@ -22,9 +24,14 @@ export default function CourseVideos({accounts,contract,courseId}) {
     }
   }, [paths]);
 
+  let progress_func = function (len) {
+    let progress = 100 * (len/fileUploading.size)
+    setProgress(progress);
+  } 
+
   const uploadFilesToipfs = async () => {
     await buffers.forEach(async (bufferElement) => {
-      let res = await ipfs.add(bufferElement, async (error, result) => {
+      let res = await ipfs.add(bufferElement, {progress: progress_func}, async (error, result) => {
         console.log("Ipfs result", result);
         if (error) {
           console.error(error);
@@ -44,7 +51,8 @@ export default function CourseVideos({accounts,contract,courseId}) {
     const file = event.target.files[0];
     const reader = new window.FileReader();
     reader.readAsArrayBuffer(file);
-
+    setFileUploading(file);
+    setProgress(0);
     reader.onloadend = () => {
       setBuffers((buffers) => [...buffers, Buffer(reader.result)]);
     };
@@ -60,9 +68,7 @@ export default function CourseVideos({accounts,contract,courseId}) {
     <>
       <h5>Add videos to the course </h5>
       {laoding ? (
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        <ProgressBar animated now={progress} />
       ) : (
       <form method="post" encType="multipart/form-data" onSubmit={(e) => saveData(e)}>
         
