@@ -1,36 +1,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { Player } from "video-react";
-import { Button, Input } from "react-bootstrap";
-import ModalSale from "./ModalSale";
+import { Button, Alert } from "react-bootstrap";
 import Web3 from "web3";
-import {
-  Redirect
-} from "react-router-dom";
 
-function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
-  const [courseOnSale, setCourseOnSale] = useState({});
-  const [courseSelected, setCourseSelected] = useState(false);
-
-  useEffect(() => {
-    console.log(courseOnSale);
-  }, [courseOnSale]);
-
-  const isEmpty = (obj) => {
-    for (var prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        return false;
-      }
-    }
-
-    return JSON.stringify(obj) === JSON.stringify({});
-  };
-
-  const notMoreOnSale = async (course) => {
-    await contract.methods.notMoreOnSale(course.id).send({ from: accounts[0] });
-    //should update state
-    window.location.reload();
-  };
-
+function DisplayCourses({ courses, accounts, bdemyContract }) {
   const buyCourse = async (course) => {
     await bdemyContract.methods
       .buyCourse(course.id)
@@ -39,46 +12,32 @@ function DisplayCourses({ courses, accounts, contract, bdemyContract }) {
     window.location.reload();
   };
 
-  const getAllVideos = async (course) => {
-    setCourseSelected(course);
-  }
-
   return courses.map((course) => (
     <div key={course.id} className="shadow courseItem">
-      {!isEmpty(courseOnSale) ? (
-        <ModalSale
-          accounts={accounts}
-          contract={contract}
-          courseOnSale={courseOnSale}
-          setCourseOnSale={setCourseOnSale}
-          isEmpty={isEmpty}
-        />
-      ) : (
-        <></>
-      )}
-
-      <div>Course name: {course.title}</div>
+       <hr></hr>
+      <div><h4>Course name: {course.title} - Visibility {course.visibility}</h4></div>
       <br></br>
       <div>Owner: {course.owner}</div>
       <br></br>
       <div>Price: {Web3.utils.fromWei(course.price)} ETH</div>
       <br></br>
+      <div>Description: {course.description}</div>
+      <br></br>
       {accounts && accounts[0] != course.owner && course.onSale ? (
-        <Button onClick={() => buyCourse(course)}>Buy Course</Button>
-      ) : accounts && accounts[0] == course.owner && !course.onSale ? (
-        <Button onClick={() => setCourseOnSale(course)}>Put On Sale</Button>
-      ) : accounts && accounts[0] == course.owner && course.onSale ? (
-        <Button onClick={() => notMoreOnSale(course)}>Not More On Sale</Button>
+        <Button variant="success" onClick={() => buyCourse(course)}>
+          Buy Course
+        </Button>
+      ) : accounts && accounts[0] != course.owner && !course.onSale ? (
+        <Alert variant="warning">Course is not for sale</Alert>
       ) : (
         <></>
       )}
-
-      <Player src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}></Player>
-      <Button onClick={()=> getAllVideos(course)}>View Course</Button>
-      {courseSelected ? 
-        <Redirect to={'/videos/'+courseSelected.id}/>
-        :<></>
-      }
+      <hr></hr>
+      <br></br>
+      Preview:
+      <Player
+        src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}
+      ></Player>
     </div>
   ));
 }

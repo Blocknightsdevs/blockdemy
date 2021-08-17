@@ -1,56 +1,70 @@
-import React, { useRef, useEffect, useState } from "react";
-import BlockdemyCourse from "./contracts/BlockdemyCourse.json";
-import Blockdemy from "./contracts/Blockdemy.json";
-import { getWeb3 } from "./Web3/utils.js";
-import { Container } from 'react-bootstrap';
+import React, { useRef, useEffect, useState  } from "react";
+import BlockdemyCourse from "./artifacts/contracts/BlockdemyCourse.sol/BlockdemyCourse.json";
+import BlockdemyToken from "./artifacts/contracts/BlockdemyToken.sol/BlockdemyToken.json";
+import Blockdemy from "./artifacts/contracts/Blockdemy.sol/Blockdemy.json";
+import { getWeb3 } from "./Utils/Web3.js";
+import { Container } from "react-bootstrap";
 import Home from "./Home";
-import Videos from "./Videos";
+import ViewCourse from "./ViewCourse";
 import MyCourses from "./MyCourses";
+import EditCourse from "./EditCourse";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  NavLink 
+  NavLink,
 } from "react-router-dom";
+
+const blockdemyCourseAddress="0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901";
+const blockdemyTokenAddress="0x7A9Ec1d04904907De0ED7b6839CcdD59c3716AC9";
+const blockdemyAddress="0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
   const [accounts, setAccounts] = useState(undefined);
   const [contract, setContract] = useState(undefined);
   const [bdemyContract, setBdemyContract] = useState(undefined);
-  const [networkId, setNetworkId] = useState(undefined);
+  const [bdemyTokenContract, setBdemyTokenContract] = useState(undefined);
   const [courses, setCourses] = useState([]);
+  const [mycourses, setMyCourses] = useState([]);
 
   useEffect(() => {
     const init = async () => {
       try {
         const web3 = await getWeb3();
-        //console.log(web3);
 
         const accounts = await web3.eth.getAccounts();
-        const networkId = await web3.eth.net.getId();
-        setNetworkId(networkId);
 
-        const deployedNetwork = BlockdemyCourse.networks[networkId];
         const contract = new web3.eth.Contract(
           BlockdemyCourse.abi,
-          deployedNetwork && deployedNetwork.address
+          blockdemyCourseAddress
         );
-
-        const deployedBdemyNetwork = Blockdemy.networks[networkId];
         const bdemyContract = new web3.eth.Contract(
           Blockdemy.abi,
-          deployedBdemyNetwork && deployedBdemyNetwork.address
+          blockdemyAddress
         );
-      
-        const courses = await contract.methods.getAllCourses().call();
+        const tokenContract = new web3.eth.Contract(
+          BlockdemyToken.abi,
+          blockdemyTokenAddress
+        );
+
+        const _courses = await contract.methods.getAllCourses().call();
+        const _mycourses = await contract.methods
+          .getMyCourses()
+          .call({ from: accounts[0] });
+        console.log(_mycourses);
+
+        let copy = [..._courses];
+
+        copy.sort((a, b) => parseInt(b.visibility) - parseInt(a.visibility));
 
         setWeb3(web3);
         setAccounts(accounts);
         setContract(contract);
         setBdemyContract(bdemyContract);
-        setCourses(courses);
-        console.log('hola');
+        setBdemyTokenContract(tokenContract);
+        setCourses(copy);
+        setMyCourses(_mycourses);
       } catch (e) {}
     };
     init();
@@ -65,32 +79,59 @@ function App() {
     }
   }, []);
 
-
   return (
-      <Router>
-          <ul className="nav nav-pills">
-            <li className="nav-item">
-              <NavLink  className="nav-link" activeClassName="nav-link active" exact  to="/">Home</NavLink >
-            </li>
-            <li className="nav-item">
-              <NavLink  className="nav-link" activeClassName="nav-link active" to="/mycourses">My Courses</NavLink >
-            </li>
-          </ul>
-  
-          {/* A <Switch> looks through its children <Route>s and
+    <Router>
+      <ul className="nav nav-pills">
+        <li className="nav-item">
+          <NavLink
+            className="nav-link"
+            activeClassName="nav-link active"
+            exact
+            to="/"
+          >
+            Home
+          </NavLink>
+        </li>
+        <li className="nav-item">
+          <NavLink
+            className="nav-link"
+            activeClassName="nav-link active"
+            to="/mycourses"
+          >
+            My Courses
+          </NavLink>
+        </li>
+      </ul>
+
+      {/* A <Switch> looks through its children <Route>s and
               renders the first one that matches the current URL. */}
-          <Switch>
-            <Route path="/videos/:course_id">
-              <Videos contract={contract}  accounts={accounts} />
-            </Route>
-            <Route path="/mycourses">
-              <MyCourses/>
-            </Route>
-            <Route path="/">
-              <Home contract={contract} accounts={accounts} courses={courses} bdemyContract={bdemyContract} />
-            </Route>
-          </Switch>
-      </Router>
+      <Switch>
+        <Route path="/course_edit/:course_id">
+          <EditCourse contract={contract} accounts={accounts} />
+        </Route>
+        <Route path="/course_view/:course_id">
+          <ViewCourse contract={contract} accounts={accounts} />
+        </Route>
+        <Route path="/mycourses">
+          <MyCourses
+            contract={contract}
+            accounts={accounts}
+            mycourses={mycourses}
+            bdemyTokenContract={bdemyTokenContract}
+            bdemyContract={bdemyContract}
+          />
+        </Route>
+        <Route path="/">
+          <Home
+            contract={contract}
+            accounts={accounts}
+            courses={courses}
+            bdemyContract={bdemyContract}
+            bdemyTokenContract={bdemyTokenContract}
+          />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 

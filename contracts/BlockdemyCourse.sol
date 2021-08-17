@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract BlockdemyCourse is ERC721 {
     using Counters for Counters.Counter;
@@ -16,8 +17,10 @@ contract BlockdemyCourse is ERC721 {
     mapping(uint256 => string) private _tokenTitles;
     mapping(uint256 => string) private _tokenDescriptions;
     mapping(uint256 => address) private _tokenCreators;
+    mapping(uint256 => uint256) private _tokenVisibility;
+    mapping(uint256 => string[]) private _videoTitles;
 
-    struct TokenProps {
+    struct CourseProps {
         uint256 id;
         address owner;
         uint256 price;
@@ -25,6 +28,7 @@ contract BlockdemyCourse is ERC721 {
         string description;
         string videos_preview;
         bool onSale;
+        uint256 visibility;
     }
 
     struct VideoProps {
@@ -33,74 +37,33 @@ contract BlockdemyCourse is ERC721 {
         string title;
     }
 
+    address blockdemy;
+
     constructor() ERC721("BDEMY Course", "BDEMYC") {}
 
-    function setTokenTitle(uint256 tokenId, string memory _title)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenTitles[tokenId] = _title;
+    function setBlockDemy(address _blockdemy) external {
+        if (blockdemy == address(0)) {
+            blockdemy = _blockdemy;
+        }
     }
 
-    function setTokenDescription(uint256 tokenId, string memory _description)
+    function increaseCourseVisibility(uint256 tokenId, uint256 amount)
         public
         TokenExists(tokenId)
-        IsOwner(tokenId)
+        IsBlockDemy
     {
-        _tokenDescriptions[tokenId] = _description;
+        _tokenVisibility[tokenId] += amount.div(10**18);
     }
 
-    function setTokenOnSale(uint256 tokenId, bool _sale)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenOnSale[tokenId] = _sale;
-    }
-
-    function setTokenCreator(uint256 tokenId, address _address)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenCreators[tokenId] = _address;
-    }
-
-    function setTokenPrice(uint256 tokenId, uint256 _price)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenPrices[tokenId] = _price;
-    }
-
-    function setTokenUris(uint256 tokenId, string[] memory _uris)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenUris[tokenId] = _uris;
-    }
-
-    function addTokenUris(uint256 tokenId, string[] memory _uris)
+    function addTokenUris(uint256 tokenId, string[] memory _uris, string[] memory _titles)
         public
         TokenExists(tokenId)
         IsOwner(tokenId)
     {
         for (uint256 i = 0; i < _uris.length; i++) {
             _tokenUris[tokenId].push(_uris[i]);
+            _videoTitles[tokenId].push(_titles[i]);
         }
-    }
-
-    modifier TokenExists(uint256 tokenId) {
-        require(_exists(tokenId), "token does not exist");
-        _;
-    }
-
-    modifier IsOwner(uint256 tokenId) {
-        require(ownerOf(tokenId) == msg.sender, "caller is not the owner");
-        _;
     }
 
     function notMoreOnSale(uint256 tokenId)
@@ -122,11 +85,6 @@ contract BlockdemyCourse is ERC721 {
         approve(address(this), tokenId);
     }
 
-    /*
-        MINT COURSE DOES A MINT OF THE COURSE WITH ALL THE VIDEOS, IT MUST BE CALLED WHEN THE   
-        INSTRUCTOR HAS ALREADY DEFINED THE COURSE IN ITS ENTIRETY (OR AT LEAST THINKS SO), SINCE WE WILL ADD
-        OPTIONS TO REMOVE AND POST VIDEOS LATER, BUT REMEMBER THAT EACH INTERACTION COSTS MONEY
-    */
     function mintCourse(
         address _owner,
         string memory _title,
@@ -140,14 +98,63 @@ contract BlockdemyCourse is ERC721 {
 
         uint256 newItemId = _tokenIds.current();
         _mint(_owner, newItemId);
-        setTokenPrice(newItemId, _price);
-        setTokenUris(newItemId, _uris);
-        setTokenOnSale(newItemId, false);
-        setTokenTitle(newItemId, _title);
-        setTokenDescription(newItemId, _description);
-        setTokenCreator(newItemId, msg.sender);
+
+        _tokenPrices[newItemId] = _price;
+        _tokenUris[newItemId] = _uris;
+        _tokenOnSale[newItemId] = false;
+        _tokenTitles[newItemId] = _title;
+        _tokenDescriptions[newItemId] = _description;
+        _tokenCreators[newItemId] = msg.sender;
+        _videoTitles[newItemId].push('preview');
 
         return newItemId;
+    }
+
+
+    //OVERLOADED EDIT FUNCTIONS
+    function editCourse(string[] memory _uris,string[] memory _title, uint256 tokenId)
+        public
+        IsOwner(tokenId)
+        TokenExists(tokenId)
+        returns (uint256)
+    {
+        for(uint i=0;i<_uris.length;i++){
+            _tokenUris[tokenId].push(_uris[i]);
+            _videoTitles[tokenId].push(_title[i]);
+        }
+        return tokenId;
+    }
+
+    function editCourse(
+        string memory _title,
+        string memory _description,
+        uint256 _price,
+        uint256 tokenId
+    ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
+        require(_price > 0);
+
+        _tokenPrices[tokenId] = _price;
+        _tokenTitles[tokenId] = _title;
+        _tokenDescriptions[tokenId] = _description;
+
+        return tokenId;
+    }
+
+    function editCourse(
+        string memory _title,
+        string memory _description,
+        uint256 _price,
+        string[] memory _uris,
+        uint256 tokenId
+    ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
+        require(_price > 0);
+
+        _tokenUris[tokenId][0] = _uris[0];
+        _tokenPrices[tokenId] = _price;
+        _tokenTitles[tokenId] = _title;
+        _tokenDescriptions[tokenId] = _description;
+
+        return tokenId;
     }
 
     function deleteUri(uint256 tokenId, string memory _hash)
@@ -157,11 +164,16 @@ contract BlockdemyCourse is ERC721 {
     {
         uint256 index = getTokenIndexByHash(tokenId, _hash);
         string[] memory uris = _tokenUris[tokenId];
+        string[] memory titles = _videoTitles[tokenId];
+        require(uris.length>1,'cant delete preview video');
         for (uint256 i = index; i < uris.length - 1; i++) {
             uris[i] = uris[i + 1];
+            titles[i] = titles[i + 1];
         }
         _tokenUris[tokenId] = uris;
+        _videoTitles[tokenId] = titles;
         _tokenUris[tokenId].pop();
+        _videoTitles[tokenId].pop();
     }
 
     function getTokenIndexByHash(uint256 tokenId, string memory _hash)
@@ -170,7 +182,7 @@ contract BlockdemyCourse is ERC721 {
         returns (uint256)
     {
         string[] memory uris = _tokenUris[tokenId];
-        for (uint256 i = 0; i < uris.length - 1; i++) {
+        for (uint256 i = 0; i < uris.length; i++) {    
             if (compareStrings(uris[i], _hash)) {
                 return i;
             }
@@ -191,20 +203,21 @@ contract BlockdemyCourse is ERC721 {
     function getCourseById(uint256 tokenId)
         public
         view
-        returns (TokenProps memory)
+        returns (CourseProps memory)
     {
         require(
             tokenId > 0 && tokenId <= _tokenIds.current(),
             "wrong token id"
         );
-        TokenProps memory token = TokenProps(
+        CourseProps memory token = CourseProps(
             tokenId,
             ownerOf(tokenId),
             _tokenPrices[tokenId],
             _tokenTitles[tokenId],
             _tokenDescriptions[tokenId],
             _tokenUris[tokenId][0],
-            _tokenOnSale[tokenId]
+            _tokenOnSale[tokenId],
+            _tokenVisibility[tokenId]
         );
         return token;
     }
@@ -212,6 +225,7 @@ contract BlockdemyCourse is ERC721 {
     function transferCourse(uint256 tokenId, address _to)
         external
         TokenExists(tokenId)
+        IsBlockDemy
     {
         this.transferFrom(ownerOf(tokenId), _to, tokenId);
         _tokenOnSale[tokenId] = false;
@@ -247,26 +261,18 @@ contract BlockdemyCourse is ERC721 {
     function getVideosOfCourse(uint256 tokenId)
         public
         view
+        IsOwner(tokenId)
         returns (VideoProps[] memory)
     {
-        uint256 tokenVideoLenght;
-
         string[] memory videos = _tokenUris[tokenId];
-        //if owner gets all videos else just the first
-        if (ownerOf(tokenId) == msg.sender) {
-            tokenVideoLenght = videos.length;
-        } else {
-            tokenVideoLenght = 1;
-        }
-
-        VideoProps[] memory tokens = new VideoProps[](tokenVideoLenght);
+        VideoProps[] memory tokens = new VideoProps[](videos.length);
         uint256 counter = 0;
 
-        for (uint256 i = 0; i < tokenVideoLenght; i++) {
+        for (uint256 i = 0; i < videos.length; i++) {
             VideoProps memory token = VideoProps(
                 tokenId,
                 _tokenUris[tokenId][i],
-                "title"
+                _videoTitles[tokenId][i]
             );
             tokens[counter] = token;
             counter++;
@@ -274,24 +280,82 @@ contract BlockdemyCourse is ERC721 {
         return tokens;
     }
 
-    function getAllCourses() public view returns (TokenProps[] memory) {
-        TokenProps[] memory tokens = new TokenProps[](_tokenIds.current());
+    function getMyCourses() public view returns (CourseProps[] memory) {
+        uint256 numberOfTokens = getNumberOfTokens(msg.sender);
+        CourseProps[] memory tokens = new CourseProps[](numberOfTokens);
         uint256 counter = 0;
 
         for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
-            TokenProps memory token = TokenProps(
+            if (ownerOf(i) == msg.sender) {
+                CourseProps memory token = CourseProps(
+                    i,
+                    ownerOf(i),
+                    _tokenPrices[i],
+                    _tokenTitles[i],
+                    _tokenDescriptions[i],
+                    _tokenUris[i][0],
+                    _tokenOnSale[i],
+                    _tokenVisibility[i]
+                );
+                tokens[counter] = token;
+                counter++;
+            }
+        }
+
+        //of counter is 0 no course met, we can know the size until we do the for
+        if (counter == 0) {
+            return new CourseProps[](0);
+        }
+
+        return tokens;
+    }
+
+    function getNumberOfTokens(address owner) internal view returns (uint256) {
+        uint256 counter = 0;
+
+        for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
+            if (ownerOf(i) == owner) {
+                counter++;
+            }
+        }
+
+        return counter;
+    }
+
+    function getAllCourses() public view returns (CourseProps[] memory) {
+        CourseProps[] memory tokens = new CourseProps[](_tokenIds.current());
+        uint256 counter = 0;
+
+        for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
+            CourseProps memory token = CourseProps(
                 i,
                 ownerOf(i),
                 _tokenPrices[i],
                 _tokenTitles[i],
                 _tokenDescriptions[i],
                 _tokenUris[i][0],
-                _tokenOnSale[i]
+                _tokenOnSale[i],
+                _tokenVisibility[i]
             );
             tokens[counter] = token;
             counter++;
         }
 
         return tokens;
+    }
+
+    modifier TokenExists(uint256 tokenId) {
+        require(_exists(tokenId), "token does not exist");
+        _;
+    }
+
+    modifier IsOwner(uint256 tokenId) {
+        require(ownerOf(tokenId) == msg.sender, "caller is not the owner");
+        _;
+    }
+
+    modifier IsBlockDemy() {
+        require(blockdemy == msg.sender, "caller is not blockdemy");
+        _;
     }
 }

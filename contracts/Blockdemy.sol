@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./BlockdemyCourse.sol";
 import "./BlockdemyToken.sol";
+import "hardhat/console.sol";
 
 contract Blockdemy is Ownable {
     //there will be 2 owners of blockdemy
@@ -26,7 +27,7 @@ contract Blockdemy is Ownable {
     //something like that, should think about it,
     //also bdemycourse is an erc721 so it does not handle payments
     function buyCourse(uint256 tokenId) external payable {
-        require(blockdemycourse.getCoursePrice(tokenId) <= msg.value,'not enogh funds');
+        require(blockdemycourse.getCoursePrice(tokenId) <= msg.value,'not enough funds');
         uint256 fees = 0;
         if (
             blockdemycourse.getCreator(tokenId) !=
@@ -37,7 +38,16 @@ contract Blockdemy is Ownable {
         }
 
         payable(blockdemycourse.ownerOf(tokenId)).transfer(msg.value - fees);
-
+        blockdemyToken.transfer(msg.sender, 10000*(10**18)); //10k (random amount)
         blockdemycourse.transferCourse(tokenId,msg.sender);
+        //who buys the course receives some blockdemy tokens, i put a random number but should see how many
+    }
+
+    function increaseVisibility(uint256 tokenId,uint256 amount) external payable{
+        console.log(amount,msg.sender);
+        //transfer tokens
+        blockdemyToken.transferFrom(msg.sender, address(this), amount);
+        //increase visibility
+        blockdemycourse.increaseCourseVisibility(tokenId,amount);
     }
 }

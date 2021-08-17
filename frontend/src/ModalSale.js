@@ -9,8 +9,7 @@ function ModalSale({
   contract,
   accounts,
 }) {
-
-    console.log(contract);
+  console.log(contract);
   const [show, setShow] = useState(!isEmpty(courseOnSale));
   const [price, setPrice] = useState(0);
 
@@ -51,7 +50,8 @@ function ModalSale({
             <InputGroup.Text id="basic-addon1">Price: </InputGroup.Text>
             <FormControl
               type="number"
-              step="0.0001"
+              step="0.00001"
+              min="0.00001"
               name="price"
               value={price}
               onChange={(e) => setPrice(e.target.value)}

@@ -79,3 +79,7 @@ typings/
 .secrets.json
 addresses.txt
 debug.txt
+
+frontend/src/artifacts
+cache
+frontend/src/contracts
