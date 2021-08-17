@@ -15,9 +15,9 @@ import {
   NavLink,
 } from "react-router-dom";
 
-const blockdemyCourseAddress="0x0aec7c174554AF8aEc3680BB58431F6618311510";
-const blockdemyTokenAddress="0x8e264821AFa98DD104eEcfcfa7FD9f8D8B320adA";
-const blockdemyAddress="0x871ACbEabBaf8Bed65c22ba7132beCFaBf8c27B5";    
+const blockdemyCourseAddress="0x70e0bA845a1A0F2DA3359C97E0285013525FFC49";
+const blockdemyTokenAddress="0x4826533B4897376654Bb4d4AD88B7faFD0C98528";
+const blockdemyAddress="0x99bbA657f2BbC93c02D617f8bA121cB8Fc104Acf";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);

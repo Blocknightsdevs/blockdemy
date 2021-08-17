@@ -8,15 +8,16 @@ export default function EditCourse({ contract, accounts }) {
 
   let { course_id } = useParams();
   const [courseData, setCourseData] = useState([]);
+  const [videos, setVideos] = useState([]);
 
   useEffect(() => {
     const init = async () => {
 
         if(typeof accounts!='undefined' && typeof contract!='undefined'){
-            let course = await contract.methods
-                .getCourseById(course_id)
-                .call({ from: accounts[0] });
+            let course = await contract.methods.getCourseById(course_id).call({ from: accounts[0] });
             setCourseData(course);
+            let videos = await contract.methods.getVideosOfCourse(course_id).call({ from: accounts[0] });
+            setVideos(videos);
         }
       
     };
@@ -42,7 +43,8 @@ export default function EditCourse({ contract, accounts }) {
             courseId={course_id}
             cData={courseData}
         ></Course>
-        <CourseVideos />
+        <CourseVideos contract={contract} accounts={accounts} courseId={course_id}/>
+        {videos.map(video => { return <div>video {video.title } - delete - view</div>})}
       </>
       : <div>Loading data</div>}
     </>

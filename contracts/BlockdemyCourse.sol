@@ -18,6 +18,7 @@ contract BlockdemyCourse is ERC721 {
     mapping(uint256 => string) private _tokenDescriptions;
     mapping(uint256 => address) private _tokenCreators;
     mapping(uint256 => uint256) private _tokenVisibility;
+    mapping(uint256 => string[]) private _videoTitles;
 
     struct CourseProps {
         uint256 id;
@@ -46,54 +47,6 @@ contract BlockdemyCourse is ERC721 {
         }
     }
 
-    function setTokenTitle(uint256 tokenId, string memory _title)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenTitles[tokenId] = _title;
-    }
-
-    function setTokenDescription(uint256 tokenId, string memory _description)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenDescriptions[tokenId] = _description;
-    }
-
-    function setTokenOnSale(uint256 tokenId, bool _sale)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenOnSale[tokenId] = _sale;
-    }
-
-    function setTokenCreator(uint256 tokenId, address _address)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenCreators[tokenId] = _address;
-    }
-
-    function setTokenPrice(uint256 tokenId, uint256 _price)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenPrices[tokenId] = _price;
-    }
-
-    function setTokenUris(uint256 tokenId, string[] memory _uris)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
-        _tokenUris[tokenId] = _uris;
-    }
-
     function increaseCourseVisibility(uint256 tokenId, uint256 amount)
         public
         TokenExists(tokenId)
@@ -102,13 +55,14 @@ contract BlockdemyCourse is ERC721 {
         _tokenVisibility[tokenId] += amount.div(10**18);
     }
 
-    function addTokenUris(uint256 tokenId, string[] memory _uris)
+    function addTokenUris(uint256 tokenId, string[] memory _uris, string[] memory _titles)
         public
         TokenExists(tokenId)
         IsOwner(tokenId)
     {
         for (uint256 i = 0; i < _uris.length; i++) {
             _tokenUris[tokenId].push(_uris[i]);
+            _videoTitles[tokenId].push(_titles[i]);
         }
     }
 
@@ -144,14 +98,31 @@ contract BlockdemyCourse is ERC721 {
 
         uint256 newItemId = _tokenIds.current();
         _mint(_owner, newItemId);
-        setTokenPrice(newItemId, _price);
-        setTokenUris(newItemId, _uris);
-        setTokenOnSale(newItemId, false);
-        setTokenTitle(newItemId, _title);
-        setTokenDescription(newItemId, _description);
-        setTokenCreator(newItemId, msg.sender);
+
+        _tokenPrices[newItemId] = _price;
+        _tokenUris[newItemId] = _uris;
+        _tokenOnSale[newItemId] = false;
+        _tokenTitles[newItemId] = _title;
+        _tokenDescriptions[newItemId] = _description;
+        _tokenCreators[newItemId] = msg.sender;
+        _videoTitles[newItemId].push('preview');
 
         return newItemId;
+    }
+
+
+    //OVERLOADED EDIT FUNCTIONS
+    function editCourse(string[] memory _uris,string[] memory _title, uint256 tokenId)
+        public
+        IsOwner(tokenId)
+        TokenExists(tokenId)
+        returns (uint256)
+    {
+        for(uint i=0;i<_uris.length;i++){
+            _tokenUris[tokenId].push(_uris[i]);
+            _videoTitles[tokenId].push(_title[i]);
+        }
+        return tokenId;
     }
 
     function editCourse(
@@ -159,14 +130,12 @@ contract BlockdemyCourse is ERC721 {
         string memory _description,
         uint256 _price,
         uint256 tokenId
-    ) public returns (uint256) {
+    ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
         require(_price > 0);
 
-        setTokenPrice(tokenId, _price);
-        setTokenOnSale(tokenId, false);
-        setTokenTitle(tokenId, _title);
-        setTokenDescription(tokenId, _description);
-        setTokenCreator(tokenId, msg.sender);
+        _tokenPrices[tokenId] = _price;
+        _tokenTitles[tokenId] = _title;
+        _tokenDescriptions[tokenId] = _description;
 
         return tokenId;
     }
@@ -177,15 +146,13 @@ contract BlockdemyCourse is ERC721 {
         uint256 _price,
         string[] memory _uris,
         uint256 tokenId
-    ) public returns (uint256) {
+    ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
         require(_price > 0);
 
-        setTokenPrice(tokenId, _price);
-        setTokenOnSale(tokenId, false);
-        setTokenTitle(tokenId, _title);
-        setTokenDescription(tokenId, _description);
-        setTokenUris(tokenId, _uris);
-        setTokenCreator(tokenId, msg.sender);
+        _tokenUris[tokenId][0] = _uris[0];
+        _tokenPrices[tokenId] = _price;
+        _tokenTitles[tokenId] = _title;
+        _tokenDescriptions[tokenId] = _description;
 
         return tokenId;
     }
@@ -289,26 +256,18 @@ contract BlockdemyCourse is ERC721 {
     function getVideosOfCourse(uint256 tokenId)
         public
         view
+        IsOwner(tokenId)
         returns (VideoProps[] memory)
     {
-        uint256 tokenVideoLenght;
-
         string[] memory videos = _tokenUris[tokenId];
-        //if owner gets all videos else just the first
-        if (ownerOf(tokenId) == msg.sender) {
-            tokenVideoLenght = videos.length;
-        } else {
-            tokenVideoLenght = 1;
-        }
-
-        VideoProps[] memory tokens = new VideoProps[](tokenVideoLenght);
+        VideoProps[] memory tokens = new VideoProps[](videos.length);
         uint256 counter = 0;
 
-        for (uint256 i = 0; i < tokenVideoLenght; i++) {
+        for (uint256 i = 0; i < videos.length; i++) {
             VideoProps memory token = VideoProps(
                 tokenId,
                 _tokenUris[tokenId][i],
-                "title"
+                _videoTitles[tokenId][i]
             );
             tokens[counter] = token;
             counter++;
@@ -346,11 +305,7 @@ contract BlockdemyCourse is ERC721 {
         return tokens;
     }
 
-    function getNumberOfTokens(address owner)
-        internal
-        view
-        returns (uint256)
-    {
+    function getNumberOfTokens(address owner) internal view returns (uint256) {
         uint256 counter = 0;
 
         for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
