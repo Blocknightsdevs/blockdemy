@@ -30,7 +30,7 @@ function ModalSale({
     e.preventDefault();
     if (price > 0) {
       await contract.methods
-        .setOnSale(courseOnSale.id, Web3.utils.toWei(price))
+        .setOnSale(courseOnSale.id, Web3.utils.toWei(price),true)
         .send({ from: accounts[0] });
     }
     handleClose();

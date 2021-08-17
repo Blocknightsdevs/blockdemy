@@ -15,9 +15,9 @@ import {
   NavLink,
 } from "react-router-dom";
 
-const blockdemyCourseAddress="0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901";
-const blockdemyTokenAddress="0x7A9Ec1d04904907De0ED7b6839CcdD59c3716AC9";
-const blockdemyAddress="0x49fd2BE640DB2910c2fAb69bB8531Ab6E76127ff";
+const blockdemyCourseAddress="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const blockdemyTokenAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
+const blockdemyAddress="0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";
 
 function App() {
   const [web3, setWeb3] = useState(undefined);
@@ -39,6 +39,7 @@ function App() {
           BlockdemyCourse.abi,
           blockdemyCourseAddress
         );
+
         const bdemyContract = new web3.eth.Contract(
           Blockdemy.abi,
           blockdemyAddress
@@ -48,11 +49,13 @@ function App() {
           blockdemyTokenAddress
         );
 
+        console.log(tokenContract);
+
         const _courses = await contract.methods.getAllCourses().call();
+        
         const _mycourses = await contract.methods
           .getMyCourses()
           .call({ from: accounts[0] });
-        console.log(_mycourses);
 
         let copy = [..._courses];
 
@@ -65,6 +68,7 @@ function App() {
         setBdemyTokenContract(tokenContract);
         setCourses(copy);
         setMyCourses(_mycourses);
+        
       } catch (e) {}
     };
     init();

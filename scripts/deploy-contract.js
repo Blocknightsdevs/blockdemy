@@ -18,9 +18,20 @@ async function main() {
 
   const [deployer] = await hre.ethers.getSigners();
   
-  const BlockdemyCourse = await hre.ethers.getContractFactory("BlockdemyCourse");
+
+  const BlockdemyCourseLib = await hre.ethers.getContractFactory("BlockdemyCourseLib");
+  const blockdemyCourseLib = await BlockdemyCourseLib.deploy();
+  await blockdemyCourseLib.deployed();
+
+  const BlockdemyCourse = await hre.ethers.getContractFactory("BlockdemyCourse",{
+        libraries: {
+          BlockdemyCourseLib: blockdemyCourseLib.address,
+        },
+      });
+
   const BlockdemyToken = await hre.ethers.getContractFactory("BlockdemyToken");
   const Blockdemy = await hre.ethers.getContractFactory("Blockdemy");
+
 
   const blockdemyCourse = await BlockdemyCourse.deploy();
   const blockdemyToken = await BlockdemyToken.deploy();

@@ -56,7 +56,7 @@ export default function MyCourses({
   };
 
   const notMoreOnSale = async (course) => {
-    await contract.methods.notMoreOnSale(course.id).send({ from: accounts[0] });
+    await contract.methods.setOnSale(course.id,0,false).send({ from: accounts[0] });
     //should update state
     window.location.reload();
   };
