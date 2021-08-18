@@ -49,7 +49,6 @@ function App() {
           blockdemyTokenAddress
         );
 
-        console.log(tokenContract);
 
         const _courses = await contract.methods.getAllCourses().call();
         

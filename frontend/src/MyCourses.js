@@ -118,9 +118,11 @@ export default function MyCourses({
             <></>
           )}
           <Button onClick={() => goToViewCourse(course)}>View Course</Button>
-          <Button onClick={() => goToEditCourse(course)}>
-            Edit Course
-          </Button>
+          {accounts && accounts[0] == course.owner && 
+            <Button onClick={() => goToEditCourse(course)}>
+              Edit Course
+            </Button> 
+          }
           <Player
             src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}
           ></Player>

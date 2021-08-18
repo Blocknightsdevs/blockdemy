@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
+
 library BlockdemyCourseLib{
 
     function compareStrings(string memory a, string memory b)
@@ -26,13 +28,18 @@ library BlockdemyCourseLib{
 
         revert("non existent hash");
     }
-
-    function getIsViewer(address[] storage _tokenOwners) public view returns(bool){
-        for (uint256 i = 0; i < _tokenOwners.length; i++) {
-            if(msg.sender==_tokenOwners[i]){
+    
+    function inTokensOwned(uint256[] storage _tokensOwned,uint256 tokenId) public view returns (bool) {
+        for (uint256 i = 0; i < _tokensOwned.length; i++) {
+            if(tokenId==_tokensOwned[i]){
                 return true;
             }
         }
         return false;
+    }
+
+    function addIfNotOwned(uint256[] storage _tokensOwned,uint256 tokenId) public {
+        if(!inTokensOwned(_tokensOwned,tokenId)) 
+        _tokensOwned.push(tokenId);
     }
 }

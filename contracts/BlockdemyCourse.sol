@@ -18,7 +18,7 @@ contract BlockdemyCourse is ERC721 {
     mapping(uint256 => string) private _tokenTitles;
     mapping(uint256 => string) private _tokenDescriptions;
     mapping(uint256 => address) private _tokenCreators;
-    mapping(uint256 => address[]) public _tokenOwners;
+    mapping(address => uint256[]) private _tokensOwned;
     mapping(uint256 => uint256) private _tokenVisibility;
     mapping(uint256 => string[]) private _videoTitles;
 
@@ -103,7 +103,7 @@ contract BlockdemyCourse is ERC721 {
         _tokenDescriptions[newItemId] = _description;
         _tokenCreators[newItemId] = msg.sender;
         _videoTitles[newItemId].push('preview');
-
+        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[msg.sender],newItemId);
         return newItemId;
     }
 
@@ -201,7 +201,7 @@ contract BlockdemyCourse is ERC721 {
         IsBlockDemy
     {
         this.transferFrom(ownerOf(tokenId), _to, tokenId);
-        _tokenOwners[tokenId].push(_to);
+        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[_to],tokenId);
         _tokenOnSale[tokenId] = false;
     }
 
@@ -235,8 +235,7 @@ contract BlockdemyCourse is ERC721 {
     function getVideosOfCourse(uint256 tokenId)
         public
         view
-        IsOwner(tokenId)
-        IsViewer(tokenId)
+        HasOwned(tokenId)
         returns (VideoProps[] memory)
     {
         VideoProps[] memory tokens = new VideoProps[](_tokenUris[tokenId].length);
@@ -255,25 +254,25 @@ contract BlockdemyCourse is ERC721 {
     }
 
     function getMyCourses() public view returns (CourseProps[] memory) {
-        uint256 numberOfTokens = getNumberOfTokens(msg.sender);
+        uint256 numberOfTokens = _tokensOwned[msg.sender].length;
         CourseProps[] memory tokens = new CourseProps[](numberOfTokens);
         uint256 counter = 0;
 
-        for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
-            if (ownerOf(i) == msg.sender) {
+        for (uint256 i = 0; i < numberOfTokens; i++) {
+                uint256 tokenId = _tokensOwned[msg.sender][i];
                 CourseProps memory token = CourseProps(
-                    i,
-                    ownerOf(i),
-                    _tokenPrices[i],
-                    _tokenTitles[i],
-                    _tokenDescriptions[i],
-                    _tokenUris[i][0],
-                    _tokenOnSale[i],
-                    _tokenVisibility[i]
+                    tokenId,
+                    ownerOf(tokenId),
+                    _tokenPrices[tokenId],
+                    _tokenTitles[tokenId],
+                    _tokenDescriptions[tokenId],
+                    _tokenUris[tokenId][0],
+                    _tokenOnSale[tokenId],
+                    _tokenVisibility[tokenId]
                 );
-                tokens[counter] = token;
+                //el problema es aca, los tokens tienen dimension de la cantidad del owner y no de los viewers
+                tokens[i] = token;
                 counter++;
-            }
         }
 
         //of counter is 0 no course met, we can know the size until we do the for
@@ -282,18 +281,6 @@ contract BlockdemyCourse is ERC721 {
         }
 
         return tokens;
-    }
-
-    function getNumberOfTokens(address owner) internal view returns (uint256) {
-        uint256 counter = 0;
-
-        for (uint256 i = 1; i < _tokenIds.current() + 1; i++) {
-            if (ownerOf(i) == owner) {
-                counter++;
-            }
-        }
-
-        return counter;
     }
 
     function getAllCourses() public view returns (CourseProps[] memory) {
@@ -328,8 +315,8 @@ contract BlockdemyCourse is ERC721 {
         _;
     }
 
-    modifier IsViewer(uint256 tokenId) {
-        require(ownerOf(tokenId) != msg.sender && BlockdemyCourseLib.getIsViewer(_tokenOwners[tokenId]), "caller is not the owner");
+    modifier HasOwned(uint256 tokenId) {
+        require(BlockdemyCourseLib.inTokensOwned(_tokensOwned[msg.sender],tokenId), "caller has not owned this token");
         _;
     }
 

@@ -56,6 +56,7 @@ async function main() {
   console.log("const blockdemyCourseAddress=\""+blockdemyCourse.address+"\";");
   console.log("const blockdemyTokenAddress=\""+blockdemyToken.address+"\";");
   console.log("const blockdemyAddress=\""+blockdemy.address+"\";");
+  console.log("library address "+blockdemyCourseLib.address)
 
 }
 

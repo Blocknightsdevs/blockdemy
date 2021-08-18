@@ -44,7 +44,7 @@ contract Blockdemy is Ownable {
     }
 
     function increaseVisibility(uint256 tokenId,uint256 amount) external payable{
-        console.log(amount,msg.sender);
+        //console.log(amount,msg.sender);
         //transfer tokens
         blockdemyToken.transferFrom(msg.sender, address(this), amount);
         //increase visibility
