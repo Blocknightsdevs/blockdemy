@@ -15,6 +15,12 @@ import {
   NavLink,
 } from "react-router-dom";
 
+/*
+KOAVAN
+const blockdemyCourseAddress="0x0F37aD2CA135b94Ab64ce77C838552E3390DD379";
+const blockdemyTokenAddress="0xF4903a202CdBac8E4E6A4f353Da2543d9B125e08";
+const blockdemyAddress="0x21eBCD03EC15664B323e488BB4608DfEDD788dBF";
+*/
 const blockdemyCourseAddress="0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 const blockdemyTokenAddress="0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0";
 const blockdemyAddress="0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9";

@@ -43,10 +43,15 @@ export default function MyCourses({
   };
 
   const increaseVisibility = async (course) => {
-    //he must tell the amount between 0 and balance
-    await bdemyTokenContract.methods
-      .approve(bdemyContract._address, Web3.utils.toWei("1000"))
-      .send({ from: accounts[0] });
+    //approve by all, must be on a button to approve and then we will show the option to increase visibility
+    let allowance = await bdemyTokenContract.methods.allowance(accounts[0],bdemyContract._address).call();
+    let totalSupply = await bdemyTokenContract.methods.totalSupply().call();
+
+    if(allowance < totalSupply){
+      await bdemyTokenContract.methods
+        .approve(bdemyContract._address, Web3.utils.toWei(totalSupply))
+        .send({ from: accounts[0] });
+    }
 
     await bdemyContract.methods
       .increaseVisibility(course.id, Web3.utils.toWei("1000"))
