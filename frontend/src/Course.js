@@ -93,7 +93,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
         await uploadFilesToipfs();
       }else{
         await contract.methods
-          .editCourse(title, description, Web3.utils.toWei(price.toString()), courseId)
+          .editCourse(title, description, Web3.utils.toWei(price.toString()),[], courseId)
           .send({ from: accounts[0] });
           setSaved(true);
           setLoading(false);

@@ -16,7 +16,7 @@ export default function CourseVideos({accounts,contract,courseId}) {
   useEffect(async () => {
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
         await contract.methods
-        .editCourse(paths,[title],courseId)
+        .editCourseVideos(paths,[title],courseId)
         .send({ from: accounts[0] });
       setSaved(true);
       setLoading(false);

@@ -14,6 +14,7 @@ contract BlockdemyCourse is ERC721 {
 
     mapping(uint256 => string[]) private _tokenUris;
     mapping(uint256 => uint256) private _tokenPrices;
+    mapping(uint256 => uint256) private _tokenRoyalties;
     mapping(uint256 => bool) private _tokenOnSale;
     mapping(uint256 => string) private _tokenTitles;
     mapping(uint256 => string) private _tokenDescriptions;
@@ -31,6 +32,7 @@ contract BlockdemyCourse is ERC721 {
         string videos_preview;
         bool onSale;
         uint256 visibility;
+        uint256 royalty;
     }
 
     struct VideoProps {
@@ -40,13 +42,15 @@ contract BlockdemyCourse is ERC721 {
     }
 
     address blockdemy;
+    address owner;
 
-    constructor() ERC721("BDEMY Course", "BDEMYC") {}
+    constructor() ERC721("BDEMY Course", "BDEMYC") {
+        owner = msg.sender;
+    }
 
-    function setBlockDemy(address _blockdemy) external {
-        if (blockdemy == address(0)) {
-            blockdemy = _blockdemy;
-        }
+    /* writer functions */ 
+    function setBlockDemy(address _blockdemy) external isOwnerOfContract{
+        blockdemy = _blockdemy;
     }
 
     function increaseCourseVisibility(uint256 tokenId, uint256 amount)
@@ -87,9 +91,11 @@ contract BlockdemyCourse is ERC721 {
         string memory _title,
         string memory _description,
         string[] memory _uris,
-        uint256 _price
+        uint256 _price,
+        uint256 _royalty
     ) public returns (uint256) {
-        require(_price > 0);
+        require(_price > 0,'price not valid');
+        require(_royalty > 0 && _royalty < 90,'royalty not valid');
 
         _tokenIds.increment();
 
@@ -102,14 +108,13 @@ contract BlockdemyCourse is ERC721 {
         _tokenTitles[newItemId] = _title;
         _tokenDescriptions[newItemId] = _description;
         _tokenCreators[newItemId] = msg.sender;
+        _tokenRoyalties[newItemId] = _royalty;
         _videoTitles[newItemId].push('preview');
         BlockdemyCourseLib.addIfNotOwned(_tokensOwned[msg.sender],newItemId);
         return newItemId;
     }
 
-
-    //OVERLOADED EDIT FUNCTIONS
-    function editCourse(string[] memory _uris,string[] memory _title, uint256 tokenId)
+    function editCourseVideos(string[] memory _uris,string[] memory _title, uint256 tokenId)
         public
         IsOwner(tokenId)
         TokenExists(tokenId)
@@ -126,27 +131,12 @@ contract BlockdemyCourse is ERC721 {
         string memory _title,
         string memory _description,
         uint256 _price,
-        uint256 tokenId
-    ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
-        require(_price > 0);
-
-        _tokenPrices[tokenId] = _price;
-        _tokenTitles[tokenId] = _title;
-        _tokenDescriptions[tokenId] = _description;
-
-        return tokenId;
-    }
-
-    function editCourse(
-        string memory _title,
-        string memory _description,
-        uint256 _price,
         string[] memory _uris,
         uint256 tokenId
     ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
         require(_price > 0);
 
-        _tokenUris[tokenId][0] = _uris[0];
+        if(_uris.length > 0) _tokenUris[tokenId][0] = _uris[0];
         _tokenPrices[tokenId] = _price;
         _tokenTitles[tokenId] = _title;
         _tokenDescriptions[tokenId] = _description;
@@ -173,6 +163,18 @@ contract BlockdemyCourse is ERC721 {
         _videoTitles[tokenId].pop();
     }
 
+        function transferCourse(uint256 tokenId, address _to)
+        external
+        TokenExists(tokenId)
+        IsBlockDemy
+    {
+        this.transferFrom(ownerOf(tokenId), _to, tokenId);
+        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[_to],tokenId);
+        _tokenOnSale[tokenId] = false;
+    }
+
+
+    /* views */
     function getCourseById(uint256 tokenId)
         public
         view
@@ -190,19 +192,10 @@ contract BlockdemyCourse is ERC721 {
             _tokenDescriptions[tokenId],
             _tokenUris[tokenId][0],
             _tokenOnSale[tokenId],
-            _tokenVisibility[tokenId]
+            _tokenVisibility[tokenId],
+            _tokenRoyalties[tokenId]
         );
         return token;
-    }
-
-    function transferCourse(uint256 tokenId, address _to)
-        external
-        TokenExists(tokenId)
-        IsBlockDemy
-    {
-        this.transferFrom(ownerOf(tokenId), _to, tokenId);
-        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[_to],tokenId);
-        _tokenOnSale[tokenId] = false;
     }
 
     function getCreator(uint256 tokenId)
@@ -220,7 +213,7 @@ contract BlockdemyCourse is ERC721 {
         TokenExists(tokenId)
         returns (uint256)
     {
-        return _tokenPrices[tokenId].div(5); //royalty 20%
+        return (_tokenPrices[tokenId]*_tokenRoyalties[tokenId]) / 100; 
     }
 
     function getCoursePrice(uint256 tokenId)
@@ -268,9 +261,9 @@ contract BlockdemyCourse is ERC721 {
                     _tokenDescriptions[tokenId],
                     _tokenUris[tokenId][0],
                     _tokenOnSale[tokenId],
-                    _tokenVisibility[tokenId]
+                    _tokenVisibility[tokenId],
+                    _tokenRoyalties[tokenId]
                 );
-                //el problema es aca, los tokens tienen dimension de la cantidad del owner y no de los viewers
                 tokens[i] = token;
                 counter++;
         }
@@ -296,7 +289,8 @@ contract BlockdemyCourse is ERC721 {
                 _tokenDescriptions[i],
                 _tokenUris[i][0],
                 _tokenOnSale[i],
-                _tokenVisibility[i]
+                _tokenVisibility[i],
+                _tokenRoyalties[i]
             );
             tokens[counter] = token;
             counter++;
@@ -305,6 +299,7 @@ contract BlockdemyCourse is ERC721 {
         return tokens;
     }
 
+    /* modifiers */
     modifier TokenExists(uint256 tokenId) {
         require(_exists(tokenId), "token does not exist");
         _;
@@ -312,6 +307,11 @@ contract BlockdemyCourse is ERC721 {
 
     modifier IsOwner(uint256 tokenId) {
         require(ownerOf(tokenId) == msg.sender, "caller is not the owner");
+        _;
+    }
+
+    modifier isOwnerOfContract(){
+        require(owner == msg.sender, 'caller not the owner of the contract');
         _;
     }
 
