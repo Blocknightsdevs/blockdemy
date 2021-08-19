@@ -18,8 +18,8 @@ export default function ModalVisibility({course,setCourseToIncreaseVisibility,ba
 
   const submit = async (e) => {
     e.preventDefault();
-
-    if(amount <= balance){
+    
+    if(parseInt(amount) <=  parseInt(Web3.utils.fromWei(balance))){
       await bdemyContract.methods
         .increaseVisibility(course.id, Web3.utils.toWei(amount))
         .send({ from: accounts[0] });

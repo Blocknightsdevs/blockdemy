@@ -1,41 +1,48 @@
 import React, { useRef, useEffect, useState } from "react";
-import { InputGroup, FormControl, Button, Spinner,ProgressBar  } from "react-bootstrap";
+import {
+  InputGroup,
+  FormControl,
+  Button,
+  Spinner,
+  ProgressBar,
+} from "react-bootstrap";
 import Web3 from "web3";
 import ipfs from "./Utils/Ipfs";
 import CourseActions from "./Utils/CourseActions";
 
-function Course({ contract, accounts, courseAction, courseId,cData }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+function Course({ contract, accounts, courseAction, courseId, cData }) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0.00001);
+  const [royalty, setRoyalty] = useState(0);
   const [buffers, setBuffers] = useState([]);
   const [paths, setPaths] = useState([]);
   const [saved, setSaved] = useState(false);
   const [laoding, setLoading] = useState(false);
-  const [data,setData] = useState(null);
-  const [fileUploading,setFileUploading] = useState(null);
-  const [progress,setProgress] = useState(0);
-
+  const [data, setData] = useState(null);
+  const [fileUploading, setFileUploading] = useState(null);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    if(data!=null && data.length>0){
+    if (data != null && data.length > 0) {
       setTitle(data.title);
       setDescription(data.description);
-      setPrice(Web3.utils.fromWei(data.price.toString()))
+      setPrice(Web3.utils.fromWei(data.price.toString()));
+      setRoyalty(data.royalty);
     }
-  },[data]);
+  }, [data]);
 
   useEffect(() => {
     setData(cData);
-  },[]);
-
+    //console.log(data);
+  }, []);
 
   useEffect(async () => {
     if (buffers.length > 0 && buffers.length == paths.length && !saved) {
-      console.log('patths changed');
+      console.log("patths changed");
       if (courseAction == CourseActions.type_edit) {
         await saveEditDataToBlockchain();
-      }else if(courseAction == CourseActions.type_create){
+      } else if (courseAction == CourseActions.type_create) {
         await saveCreateDataToBlockchain();
       }
       setSaved(true);
@@ -44,12 +51,18 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
     }
   }, [paths]);
 
-
   const saveEditDataToBlockchain = async () => {
     await contract.methods
-    .editCourse(title, description, Web3.utils.toWei(price.toString()),paths, courseId)
-    .send({ from: accounts[0] });
-  }
+      .editCourse(
+        title,
+        description,
+        Web3.utils.toWei(price.toString()),
+        paths,
+        royalty,
+        courseId
+      )
+      .send({ from: accounts[0] });
+  };
 
   const saveCreateDataToBlockchain = async () => {
     await contract.methods
@@ -58,59 +71,70 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
         title,
         description,
         paths,
-        Web3.utils.toWei(price.toString())
+        Web3.utils.toWei(price.toString()),
+        royalty
       )
       .send({ from: accounts[0] });
-  }
+  };
 
   let progress_func = function (len) {
-    let progress = 100 * (len/fileUploading.size)
+    let progress = 100 * (len / fileUploading.size);
     setProgress(progress);
-  } 
+  };
 
   const uploadFilesToipfs = async () => {
     await buffers.forEach(async (bufferElement) => {
-      let res = await ipfs.add(bufferElement, {progress: progress_func}, async (error, result) => {
-        console.log("Ipfs result", result);
-        if (error) {
-          console.error(error);
-          return;
+      let res = await ipfs.add(
+        bufferElement,
+        { progress: progress_func },
+        async (error, result) => {
+          console.log("Ipfs result", result);
+          if (error) {
+            console.error(error);
+            return;
+          }
+          console.log(result[0].hash, description);
         }
-        console.log(result[0].hash, description);
-      });
+      );
 
       console.log(res);
       setPaths((paths) => [...paths, res.path]);
     });
-  }
+  };
 
   const saveCreateData = async () => {
-     await uploadFilesToipfs();
-  }
+    await uploadFilesToipfs();
+  };
 
   const saveEditData = async () => {
-      if(buffers.length > 0){
-        await uploadFilesToipfs();
-      }else{
-        await contract.methods
-          .editCourse(title, description, Web3.utils.toWei(price.toString()),[], courseId)
-          .send({ from: accounts[0] });
-          setSaved(true);
-          setLoading(false);
-          window.location.reload();
-      }
-  }
+    if (buffers.length > 0) {
+      await uploadFilesToipfs();
+    } else {
+      await contract.methods
+        .editCourse(
+          title,
+          description,
+          Web3.utils.toWei(price.toString()),
+          [],
+          royalty,
+          courseId
+        )
+        .send({ from: accounts[0] });
+      setSaved(true);
+      setLoading(false);
+      window.location.reload();
+    }
+  };
 
   const saveData = async (event) => {
     setLoading(true);
     event.preventDefault();
-    
+
     if (courseAction == CourseActions.type_edit) {
       await saveEditData();
-    }
-    else if(courseAction == CourseActions.type_create){
+    } else if (courseAction == CourseActions.type_create) {
       await saveCreateData();
-   }
+    }
   };
 
   const captureFile = (event) => {
@@ -166,6 +190,22 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
               onChange={(e) => setPrice(e.target.value)}
             ></FormControl>
           </InputGroup>
+          {((courseAction == CourseActions.type_create) || (data && accounts[0] == data.creator)) &&
+          <InputGroup>
+            <InputGroup.Text id="basic-addon1">
+              {" "}
+              Royalties (0-90%):
+            </InputGroup.Text>
+            <FormControl
+              type="number"
+              step="1"
+              min="0"
+              max="90"
+              name="royalty"
+              value={royalty}
+              onChange={(e) => setRoyalty(e.target.value)}
+            ></FormControl>
+          </InputGroup>}
           <InputGroup>
             <InputGroup.Text id="basic-addon1">
               Course Preview:{" "}
@@ -178,7 +218,7 @@ function Course({ contract, accounts, courseAction, courseId,cData }) {
               accept="video/mp4"
               onChange={(e) => captureFile(e)}
             />
-          </InputGroup> 
+          </InputGroup>
           <Button type="submit" name="ok">
             Save course
           </Button>

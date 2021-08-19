@@ -23,6 +23,9 @@ function DisplayCourses({ courses, accounts, bdemyContract }) {
       <br></br>
       <div>Description: {course.description}</div>
       <br></br>
+      <br></br>
+      <div>Royalty: {course.royalty} %</div>
+      <br></br>
       {accounts && accounts[0] != course.owner && course.onSale ? (
         <Button variant="success" onClick={() => buyCourse(course)}>
           Buy Course

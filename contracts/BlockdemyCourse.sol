@@ -26,6 +26,7 @@ contract BlockdemyCourse is ERC721 {
     struct CourseProps {
         uint256 id;
         address owner;
+        address creator;
         uint256 price;
         string title;
         string description;
@@ -48,44 +49,49 @@ contract BlockdemyCourse is ERC721 {
         owner = msg.sender;
     }
 
-    /* writer functions */ 
-    function setBlockDemy(address _blockdemy) external isOwnerOfContract{
+    /* writer functions */
+    function setBlockDemy(address _blockdemy) external  {
+        isOwnerOfContract();
         blockdemy = _blockdemy;
     }
 
     function increaseCourseVisibility(uint256 tokenId, uint256 amount)
         public
-        TokenExists(tokenId)
-        IsBlockDemy
     {
+        TokenExists(tokenId);
+        IsBlockDemy();
         _tokenVisibility[tokenId] += amount.div(10**18);
     }
 
-    function addTokenUris(uint256 tokenId, string[] memory _uris, string[] memory _titles)
-        public
-        TokenExists(tokenId)
-        IsOwner(tokenId)
-    {
+    function addTokenUris(
+        uint256 tokenId,
+        string[] memory _uris,
+        string[] memory _titles
+    ) public {
+        TokenExists(tokenId);
+        IsOwner(tokenId);
         for (uint256 i = 0; i < _uris.length; i++) {
             _tokenUris[tokenId].push(_uris[i]);
             _videoTitles[tokenId].push(_titles[i]);
         }
     }
 
-    function setOnSale(uint256 tokenId, uint256 amount,bool sale)
-        external
-        IsOwner(tokenId)
-        TokenExists(tokenId)
-    {
+    function setOnSale(
+        uint256 tokenId,
+        uint256 amount,
+        bool sale
+    ) external {
+        TokenExists(tokenId);
+        IsOwner(tokenId);
         _tokenOnSale[tokenId] = sale;
-        if(sale){
+        if (sale) {
             _tokenPrices[tokenId] = amount;
             approve(address(this), tokenId);
-        }else{
+        } else {
             approve(address(0), tokenId);
         }
     }
-    
+
     function mintCourse(
         address _owner,
         string memory _title,
@@ -94,8 +100,8 @@ contract BlockdemyCourse is ERC721 {
         uint256 _price,
         uint256 _royalty
     ) public returns (uint256) {
-        require(_price > 0,'price not valid');
-        require(_royalty > 0 && _royalty < 90,'royalty not valid');
+        require(_price > 0, "PNV");
+        require(_royalty > 0 && _royalty < 90, "RNV");
 
         _tokenIds.increment();
 
@@ -109,18 +115,19 @@ contract BlockdemyCourse is ERC721 {
         _tokenDescriptions[newItemId] = _description;
         _tokenCreators[newItemId] = msg.sender;
         _tokenRoyalties[newItemId] = _royalty;
-        _videoTitles[newItemId].push('preview');
-        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[msg.sender],newItemId);
+        _videoTitles[newItemId].push("preview");
+        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[msg.sender], newItemId);
         return newItemId;
     }
 
-    function editCourseVideos(string[] memory _uris,string[] memory _title, uint256 tokenId)
-        public
-        IsOwner(tokenId)
-        TokenExists(tokenId)
-        returns (uint256)
-    {
-        for(uint i=0;i<_uris.length;i++){
+    function editCourseVideos(
+        string[] memory _uris,
+        string[] memory _title,
+        uint256 tokenId
+    ) public  returns (uint256) {
+        TokenExists(tokenId);
+        IsOwner(tokenId);
+        for (uint256 i = 0; i < _uris.length; i++) {
             _tokenUris[tokenId].push(_uris[i]);
             _videoTitles[tokenId].push(_title[i]);
         }
@@ -132,27 +139,34 @@ contract BlockdemyCourse is ERC721 {
         string memory _description,
         uint256 _price,
         string[] memory _uris,
+        uint256 _royalty,
         uint256 tokenId
-    ) public IsOwner(tokenId) TokenExists(tokenId) returns (uint256) {
+    ) public  returns (uint256) {
+        TokenExists(tokenId);
+        IsOwner(tokenId);
         require(_price > 0);
-
-        if(_uris.length > 0) _tokenUris[tokenId][0] = _uris[0];
+        if (_uris.length > 0) _tokenUris[tokenId][0] = _uris[0];
         _tokenPrices[tokenId] = _price;
         _tokenTitles[tokenId] = _title;
         _tokenDescriptions[tokenId] = _description;
+        if (msg.sender == _tokenCreators[tokenId])
+            _tokenRoyalties[tokenId] = _royalty;
 
         return tokenId;
     }
 
     function deleteUri(uint256 tokenId, string memory _hash)
         external
-        TokenExists(tokenId)
-        IsOwner(tokenId)
     {
-        uint256 index = BlockdemyCourseLib.getTokenIndexByHash(_hash,_tokenUris[tokenId]);
+        TokenExists(tokenId);
+        IsOwner(tokenId);
+        uint256 index = BlockdemyCourseLib.getTokenIndexByHash(
+            _hash,
+            _tokenUris[tokenId]
+        );
         string[] memory uris = _tokenUris[tokenId];
         string[] memory titles = _videoTitles[tokenId];
-        require(uris.length>1,'cant delete preview video');
+        require(uris.length > 1, "CDPV");
         for (uint256 i = index; i < uris.length - 1; i++) {
             uris[i] = uris[i + 1];
             titles[i] = titles[i + 1];
@@ -163,16 +177,16 @@ contract BlockdemyCourse is ERC721 {
         _videoTitles[tokenId].pop();
     }
 
-        function transferCourse(uint256 tokenId, address _to)
+    function transferCourse(uint256 tokenId, address _to)
         external
-        TokenExists(tokenId)
-        IsBlockDemy
+  
     {
+        TokenExists(tokenId);
+        IsBlockDemy();
         this.transferFrom(ownerOf(tokenId), _to, tokenId);
-        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[_to],tokenId);
+        BlockdemyCourseLib.addIfNotOwned(_tokensOwned[_to], tokenId);
         _tokenOnSale[tokenId] = false;
     }
-
 
     /* views */
     function getCourseById(uint256 tokenId)
@@ -180,13 +194,11 @@ contract BlockdemyCourse is ERC721 {
         view
         returns (CourseProps memory)
     {
-        require(
-            tokenId > 0 && tokenId <= _tokenIds.current(),
-            "wrong token id"
-        );
+        require(tokenId > 0 && tokenId <= _tokenIds.current(), "WTI");
         CourseProps memory token = CourseProps(
             tokenId,
             ownerOf(tokenId),
+            _tokenCreators[tokenId],
             _tokenPrices[tokenId],
             _tokenTitles[tokenId],
             _tokenDescriptions[tokenId],
@@ -201,37 +213,39 @@ contract BlockdemyCourse is ERC721 {
     function getCreator(uint256 tokenId)
         external
         view
-        TokenExists(tokenId)
         returns (address)
     {
+        TokenExists(tokenId);
         return _tokenCreators[tokenId];
     }
 
     function getCourseFees(uint256 tokenId)
         external
         view
-        TokenExists(tokenId)
         returns (uint256)
     {
-        return (_tokenPrices[tokenId]*_tokenRoyalties[tokenId]) / 100; 
+        TokenExists(tokenId);
+        return (_tokenPrices[tokenId] * _tokenRoyalties[tokenId]) / 100;
     }
 
     function getCoursePrice(uint256 tokenId)
         external
         view
-        TokenExists(tokenId)
         returns (uint256)
     {
+        TokenExists(tokenId);
         return _tokenPrices[tokenId];
     }
 
     function getVideosOfCourse(uint256 tokenId)
         public
         view
-        HasOwned(tokenId)
         returns (VideoProps[] memory)
     {
-        VideoProps[] memory tokens = new VideoProps[](_tokenUris[tokenId].length);
+        HasOwned(tokenId);
+        VideoProps[] memory tokens = new VideoProps[](
+            _tokenUris[tokenId].length
+        );
         uint256 counter = 0;
 
         for (uint256 i = 0; i < _tokenUris[tokenId].length; i++) {
@@ -252,20 +266,21 @@ contract BlockdemyCourse is ERC721 {
         uint256 counter = 0;
 
         for (uint256 i = 0; i < numberOfTokens; i++) {
-                uint256 tokenId = _tokensOwned[msg.sender][i];
-                CourseProps memory token = CourseProps(
-                    tokenId,
-                    ownerOf(tokenId),
-                    _tokenPrices[tokenId],
-                    _tokenTitles[tokenId],
-                    _tokenDescriptions[tokenId],
-                    _tokenUris[tokenId][0],
-                    _tokenOnSale[tokenId],
-                    _tokenVisibility[tokenId],
-                    _tokenRoyalties[tokenId]
-                );
-                tokens[i] = token;
-                counter++;
+            uint256 tokenId = _tokensOwned[msg.sender][i];
+            CourseProps memory token = CourseProps(
+                tokenId,
+                ownerOf(tokenId),
+                _tokenCreators[tokenId],
+                _tokenPrices[tokenId],
+                _tokenTitles[tokenId],
+                _tokenDescriptions[tokenId],
+                _tokenUris[tokenId][0],
+                _tokenOnSale[tokenId],
+                _tokenVisibility[tokenId],
+                _tokenRoyalties[tokenId]
+            );
+            tokens[i] = token;
+            counter++;
         }
 
         //of counter is 0 no course met, we can know the size until we do the for
@@ -284,6 +299,7 @@ contract BlockdemyCourse is ERC721 {
             CourseProps memory token = CourseProps(
                 i,
                 ownerOf(i),
+                _tokenCreators[i],
                 _tokenPrices[i],
                 _tokenTitles[i],
                 _tokenDescriptions[i],
@@ -299,29 +315,29 @@ contract BlockdemyCourse is ERC721 {
         return tokens;
     }
 
-    /* modifiers */
-    modifier TokenExists(uint256 tokenId) {
-        require(_exists(tokenId), "token does not exist");
-        _;
+    /* control check function */
+    function IsOwner(uint256 tokenId) internal view{
+        require(ownerOf(tokenId) == msg.sender, "CNO");
     }
 
-    modifier IsOwner(uint256 tokenId) {
-        require(ownerOf(tokenId) == msg.sender, "caller is not the owner");
-        _;
+    function TokenExists(uint256 tokenId) internal view{
+        require(_exists(tokenId), "TNE");
     }
 
-    modifier isOwnerOfContract(){
-        require(owner == msg.sender, 'caller not the owner of the contract');
-        _;
+    function isOwnerOfContract() internal view{
+        require(owner == msg.sender, "CNOC");
     }
 
-    modifier HasOwned(uint256 tokenId) {
-        require(BlockdemyCourseLib.inTokensOwned(_tokensOwned[msg.sender],tokenId), "caller has not owned this token");
-        _;
+    function HasOwned(uint256 tokenId) internal view{
+        require(
+            BlockdemyCourseLib.inTokensOwned(_tokensOwned[msg.sender], tokenId),
+            "CHNBO"
+        );
     }
 
-    modifier IsBlockDemy() {
-        require(blockdemy == msg.sender, "caller is not blockdemy");
-        _;
+    function IsBlockDemy() internal view{
+        require(blockdemy == msg.sender, "CNB");
     }
+
+
 }

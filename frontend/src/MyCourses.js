@@ -143,7 +143,10 @@ export default function MyCourses({
           <br></br>
           <div>Price: {Web3.utils.fromWei(course.price)} ETH</div>
           <br></br>
-          Course Visibility: {course.visibility}
+          Royalty: {course.royalty} %
+          <br></br>
+          <br></br>
+          Visibility: {course.visibility}
           <br></br>
           {accounts && accounts[0] == course.owner && !course.onSale ? (
             <Button onClick={() => setCourseOnSale(course)}>Put On Sale</Button>
