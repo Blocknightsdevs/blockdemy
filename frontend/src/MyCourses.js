@@ -6,6 +6,7 @@ import ModalSale from "./ModalSale";
 import { Player } from "video-react";
 import { Redirect } from "react-router-dom";
 import CourseActions from "./Utils/CourseActions";
+import ModalVisibility from "./ModalVisibility";
 
 export default function MyCourses({
   contract,
@@ -18,6 +19,17 @@ export default function MyCourses({
   const [balance, setBalance] = useState(0);
   const [goToVideos, setGoTovideos] = useState(false);
   const [goToEdition, setGoToEdition] = useState(false);
+  const [courseToIncreaseVisibility, setCourseToIncreaseVisibility] = useState({});
+  const [approvedAllowance, setApprovedAllowance] = useState(false);
+  const [allowance, setAllowance] = useState(false);
+
+
+  useEffect(() => {
+    const init = async () => {
+      await checkAllowance();
+    };
+    init();
+  }, [allowance]);
 
   useEffect(() => {
     const init = async () => {
@@ -27,10 +39,28 @@ export default function MyCourses({
           .call();
         console.log(balance, "balance!!!");
         setBalance(balance);
+        await callAllowance();
       }
     };
     init();
   }, [bdemyTokenContract]);
+
+
+  const callAllowance = async () => {
+    if (typeof bdemyTokenContract != "undefined") {
+      let allowance = await bdemyTokenContract.methods
+        .allowance(accounts[0], bdemyContract._address)
+        .call();
+        console.log(allowance);
+      setAllowance(allowance);
+    }
+  }
+
+  const checkAllowance = async () => {
+      if(allowance > 0){
+        setApprovedAllowance(true);
+      }
+  };
 
   const isEmpty = (obj) => {
     for (var prop in obj) {
@@ -42,37 +72,35 @@ export default function MyCourses({
     return JSON.stringify(obj) === JSON.stringify({});
   };
 
-  const increaseVisibility = async (course) => {
-    //approve by all, must be on a button to approve and then we will show the option to increase visibility
-    let allowance = await bdemyTokenContract.methods.allowance(accounts[0],bdemyContract._address).call();
+  const approve = async () => {
     let totalSupply = await bdemyTokenContract.methods.totalSupply().call();
 
-    if(allowance < totalSupply){
-      await bdemyTokenContract.methods
-        .approve(bdemyContract._address, Web3.utils.toWei(totalSupply))
-        .send({ from: accounts[0] });
-    }
+    await bdemyTokenContract.methods
+      .approve(bdemyContract._address, totalSupply)
+      .send({ from: accounts[0] });
 
-    await bdemyContract.methods
-      .increaseVisibility(course.id, Web3.utils.toWei("1000"))
+    await callAllowance();
+  };
+
+  const increaseVisibility = async (course) => {
+    setCourseToIncreaseVisibility(course);
+  };
+
+  const notMoreOnSale = async (course) => {
+    await contract.methods
+      .setOnSale(course.id, 0, false)
       .send({ from: accounts[0] });
     //should update state
     window.location.reload();
   };
 
-  const notMoreOnSale = async (course) => {
-    await contract.methods.setOnSale(course.id,0,false).send({ from: accounts[0] });
-    //should update state
-    window.location.reload();
-  };
-
   const goToViewCourse = async (course) => {
-    setGoTovideos({course_id:course.id});
+    setGoTovideos({ course_id: course.id });
   };
 
   const goToEditCourse = async (course) => {
-    setGoToEdition({course_id:course.id});
-  }
+    setGoToEdition({ course_id: course.id });
+  };
 
   return (
     <>
@@ -97,6 +125,18 @@ export default function MyCourses({
           ) : (
             <></>
           )}
+          {!isEmpty(courseToIncreaseVisibility) ? (
+            <ModalVisibility
+              course={courseToIncreaseVisibility}
+              setCourseToIncreaseVisibility={setCourseToIncreaseVisibility}
+              balance={balance}
+              bdemyContract={bdemyContract}
+              accounts={accounts}
+              isEmpty={isEmpty}
+            />
+          ) : (
+            <></>
+          )}
           <div>Course name: {course.title}</div>
           <br></br>
           <div>Owner: {course.owner}</div>
@@ -112,29 +152,35 @@ export default function MyCourses({
               <Button onClick={() => notMoreOnSale(course)}>
                 Not More On Sale
               </Button>
-              <Button
-                disabled={balance == 0}
-                onClick={() => increaseVisibility(course)}
-              >
-                Increase Visibility
-              </Button>
+              {approvedAllowance && balance>0? (
+                <Button
+                  onHov
+                  onClick={() => increaseVisibility(course)}
+                >
+                  Increase Visibility
+                </Button>
+              ) : !approvedAllowance && <Button onClick={() => approve()}>Approve to increase visibility</Button>}
             </>
           ) : (
             <></>
           )}
           <Button onClick={() => goToViewCourse(course)}>View Course</Button>
-          {accounts && accounts[0] == course.owner && 
-            <Button onClick={() => goToEditCourse(course)}>
-              Edit Course
-            </Button> 
-          }
+          {accounts && accounts[0] == course.owner && (
+            <Button onClick={() => goToEditCourse(course)}>Edit Course</Button>
+          )}
           <Player
             src={"https://ipfs.infura.io/ipfs/" + course.videos_preview}
           ></Player>
-          
-          {goToVideos ? (<Redirect to={"/course_view/" + goToVideos.course_id} />) : (<></>)}
-          {goToEdition ? (<Redirect to={"/course_edit/" + goToEdition.course_id} />) : (<></>)}
-
+          {goToVideos ? (
+            <Redirect to={"/course_view/" + goToVideos.course_id} />
+          ) : (
+            <></>
+          )}
+          {goToEdition ? (
+            <Redirect to={"/course_edit/" + goToEdition.course_id} />
+          ) : (
+            <></>
+          )}
         </div>
       ))}
     </>
