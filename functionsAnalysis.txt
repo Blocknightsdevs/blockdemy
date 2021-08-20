@@ -1,0 +1,35 @@
+getters
+getAllCourses -> CourseProps[] memory
+getNumberOfTokens -> uint (uses ownerOf())
+getMyCourses -> CourseProps[] memory
+getVideosOfCourse -> VideoProps[] memory
+getCoursePrice -> uint
+getCourseFees -> uint
+getCreator -> address
+getCourseById -> CourseProps memory
+
+edits 
+editCourse -> uint256
+editCourse -> uint256
+editCourse -> uint256
+mintCourse -> uint256
+
+void
+transferCourse -> void
+deleteUri -> void
+setOnSale -> void
+notMoreOnSale -> void
+addTokenUris -> void
+increaseCourseVisibility -> void
+setBlockDemy -> void
+
+
+---- changes ---
+we remove notMoreOnSale and change the logic to setSale with if
+--> reduced = 23.84 -> 23.66 -> still high objetive is <20
+
+
+const token = await (await ethers.getContractFactory("BlockdemyCourse",{libraries: {BlockdemyCourseLib: "0x5FbDB2315678afecb367f032d93F642f64180aa3"}})).attach("0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512")
+res = await token.getAllCourses()
+
+

@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require('hardhat-contract-sizer');
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -25,20 +26,17 @@ module.exports = {
     hardhat: {
       chainId: 1337,
     },
-    // ropsten: {
-    //   url: "https://ropsten.infura.io/v3/projectid",
-    //   accounts: [process.env.a2key]
-    // },
-    // rinkeby: {
-    //   url: "https://rinkeby.infura.io/v3/projectid",
-    //   accounts: [process.env.a2key]
-    // }
   },
   solidity: "0.8.0",
   settings: {
     optimizer: {
       enabled: true,
-      runs: 1000,
+      runs: 2000,
     },
   },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
+    disambiguatePaths: false,
+  }
 };
