@@ -106,7 +106,7 @@ contract BlockdemyCourse is ERC721 {
         _tokenIds.increment();
 
         uint256 newItemId = _tokenIds.current();
-        _mint(_owner, newItemId);
+        _safeMint(_owner, newItemId);
 
         _tokenPrices[newItemId] = _price;
         _tokenUris[newItemId] = _uris;
