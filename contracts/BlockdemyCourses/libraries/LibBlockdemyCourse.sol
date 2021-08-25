@@ -101,7 +101,7 @@ library LibBlockdemyCourse {
 
     function getCourse(uint256 _courseId) internal view returns (CourseProps memory course_) {
         AppStorage storage s = LibAppStorage.diamondStorage();
-        require(_courseId > 0 && _courseId <= s.courseIdCounter, "WTI");
+        require(_courseId > 0 && _courseId <= s.courseIdCounter, "Course Index out of bounds");
         course_.id = _courseId;
         course_.owner = s._courseOwners[_courseId];
         course_.creator = s._courseCreators[_courseId];

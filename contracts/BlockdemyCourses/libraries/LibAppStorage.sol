@@ -50,19 +50,19 @@ contract Modifiers {
     AppStorage internal s;
 
     modifier IsBlockDemy(){
-        require(s.blockdemy == LibMeta.msgSender(),'ISNBDMY');
+        require(s.blockdemy == LibMeta.msgSender(),'Caller is not blockdemy');
         _;
     }
 
     modifier IsOwner(uint256 tokenId){
-        require(s._courseOwners[tokenId] == LibMeta.msgSender(), "CNO");
+        require(s._courseOwners[tokenId] == LibMeta.msgSender(), "Caller is not the owner");
         _;
     }
 
     modifier HasOwned(uint256 _courseId) {
          require(
             LibBlockdemyCourse.inTokensOwned(LibMeta.msgSender(),_courseId),
-            "CHNBO"
+            "Caller has not owned the course"
         );
         _;
     }
