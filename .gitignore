@@ -83,3 +83,4 @@ debug.txt
 frontend/src/artifacts
 cache
 frontend/src/contracts
+package-lock.json
