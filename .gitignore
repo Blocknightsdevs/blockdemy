@@ -80,6 +80,7 @@ typings/
 addresses.txt
 debug.txt
 
+artifacts
 frontend/src/artifacts
 cache
 frontend/src/contracts
