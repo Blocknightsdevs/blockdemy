@@ -1,5 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
 require('hardhat-contract-sizer');
+//const fs = require('fs');
+
+//const secrets = JSON.parse(fs.readFileSync('.secrets.json').toString().trim());
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -26,6 +29,33 @@ module.exports = {
     hardhat: {
       chainId: 1337,
     },
+    /*
+    arbitrum_rinkeby:{
+      url: `https://arb-rinkeby.g.alchemy.com/v2/SECRET`,
+      accounts: ['SECRETPRIVKEY'] //deployer key 501b from metamask
+    },
+    kovan: {
+      url: `https://eth-kovan.alchemyapi.io/v2/SECRET`,
+      accounts: ['SECRETPRIVKEY'] //deployer key 501b from metamask
+    },
+    bsc_testnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: {mnemonic: secrets.mnemonic}
+    }
+    bsc_testnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: {mnemonic: mnemonic}
+    },
+    bsc_mainnet: {
+      url: "https://bsc-dataseed.binance.org/",
+      chainId: 56,
+      gasPrice: 20000000000,
+      accounts: {mnemonic: mnemonic}
+    }*/
   },
   solidity: "0.8.0",
   settings: {
