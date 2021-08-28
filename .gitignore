@@ -84,3 +84,4 @@ frontend/src/artifacts
 cache
 frontend/src/contracts
 package-lock.json
+hardhat.config.js
