@@ -55,8 +55,7 @@ library LibBlockdemyCourse {
         s.courseIds.push(tokenId);
         //course data (shall we store metadata in ipfs??)
         s._coursePrices[tokenId] = _price;
-        s._courseUris[tokenId].push(_uri);
-        s._videoTitles[tokenId].push("preview");
+        s._coursePreviews[tokenId] = _uri;
         s._courseOnSale[tokenId] = false;
         s._courseTitles[tokenId] = _title;
         s._courseDescriptions[tokenId] = _description;
@@ -107,7 +106,7 @@ library LibBlockdemyCourse {
         course_.creator = s._courseCreators[_courseId];
         course_.title = s._courseTitles[_courseId];
         course_.description = s._courseDescriptions[_courseId];
-        course_.videos_preview = s._courseUris[_courseId][0];
+        course_.videos_preview = s._coursePreviews[_courseId];
         course_.onSale = s._courseOnSale[_courseId];
         course_.price = s._coursePrices[_courseId];
         course_.visibility = s._courseVisibility[_courseId];

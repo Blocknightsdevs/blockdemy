@@ -42,7 +42,7 @@ contract BlockdemyCourseEditFacet is Modifiers{
         uint256 courseId
     ) public IsOwner(courseId)  returns (uint256) {
         require(_price > 0);
-        if (_uris.length > 0) s._courseUris[courseId][0] = _uris[0];
+        if (_uris.length > 0) s._coursePreviews[courseId] = _uris[0];
         s._coursePrices[courseId] = _price;
         s._courseTitles[courseId] = _title;
         s._courseDescriptions[courseId] = _description;

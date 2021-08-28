@@ -10,6 +10,7 @@ struct AppStorage {
         mapping(uint256 => string[])  _courseUris;
         mapping(uint256 =>  string[])  _videoTitles;
         mapping(address =>  uint256[])  _coursesOwned;
+        mapping(uint256 => string)  _coursePreviews;
 
         mapping(uint256 => uint256)  _coursePrices;
         mapping(uint256 => uint256)  _courseRoyalties;

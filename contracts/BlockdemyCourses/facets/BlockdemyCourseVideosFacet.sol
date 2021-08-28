@@ -45,7 +45,6 @@ contract BlockdemyCourseVideosFacet is Modifiers{
         uint256 index = LibBlockdemyCourse.getVideoIndexByHash(_hash, s._courseUris[_courseId]);
         string[] memory uris = s._courseUris[_courseId];
         string[] memory titles = s._videoTitles[_courseId];
-        require(uris.length > 1, "CDPV");
         for (uint256 i = index; i < uris.length - 1; i++) {
             uris[i] = uris[i + 1];
             titles[i] = titles[i + 1];
