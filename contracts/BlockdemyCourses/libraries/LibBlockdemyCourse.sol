@@ -13,7 +13,7 @@ import "hardhat/console.sol";
 struct VideoProps {
     uint256 id_course;
     string uri;
-    string title;
+    //string title;
 }
 
 struct CourseProps {
@@ -47,6 +47,7 @@ library LibBlockdemyCourse {
         uint256 tokenId = s.courseIdCounter;
         require(_to != address(0), "ERC721: mint to the zero address");
         require(!(s._courseOwners[tokenId] != address(0)), "ERC721: token already minted");
+        require(_royalty <= 100,"royalty not valid");
 
         //erc721
         s._courseOwnerIds[_to].push(tokenId);
@@ -90,7 +91,7 @@ library LibBlockdemyCourse {
         uint256 counter = 0;
 
         for (uint256 i = 0; i < s._courseUris[_courseId].length; i++) {
-            VideoProps memory token = VideoProps(_courseId, s._courseUris[_courseId][i], s._videoTitles[_courseId][i]);
+            VideoProps memory token = VideoProps(_courseId, s._courseUris[_courseId][i]);//, s._videoTitles[_courseId][i]
             tokens[counter] = token;
             counter++;
         }

@@ -173,6 +173,6 @@ contract BlockdemyCourseFacet is Modifiers{
     }
 
     function tokenURI() external pure returns (string memory) {
-        return "No URI"; //Here is your URL! //The URI may point to a JSON file that conforms to the "ERC721
+        return "No URI"; //Here is your URL! //The URI may point to a JSON file that conforms to the ERC721, but should not diaplay all videos!
     }
 }
