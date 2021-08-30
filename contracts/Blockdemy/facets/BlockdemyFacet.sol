@@ -12,8 +12,6 @@ contract BlockdemyFacet{
 
     function buyCourse(uint256 tokenId) external payable{
         BlockdemyCourseFacet blockdemyCourse = BlockdemyCourseFacet(s.blockdemyCourseDiamondAddress);
-        BlockdemyTokenFacet blockdemyToken = BlockdemyTokenFacet(s.blockdemyTokenDiamondAddress);
-
         require(blockdemyCourse.getCoursePrice(tokenId) <= msg.value,'not enough funds');
         
         uint256 fees = 0;
@@ -26,7 +24,7 @@ contract BlockdemyFacet{
         }
 
         payable(blockdemyCourse.ownerOf(tokenId)).transfer(msg.value - fees);
-        blockdemyToken.transfer(LibMeta.msgSender(), 10000*(10**18)); //10k (random amount)
+
         blockdemyCourse.safeTransferFrom(blockdemyCourse.ownerOf(tokenId),LibMeta.msgSender(),tokenId);
     }
 

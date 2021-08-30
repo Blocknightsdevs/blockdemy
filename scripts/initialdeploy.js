@@ -81,6 +81,9 @@ async function main() {
         args: [[name, symbol]]
     })
 
+    //we need to wait for the deploys to finish
+    await blockdemyCourseDiamond.deployed()
+
     name="Blockdemy Token";
     symbol="BDEMY";
     const blockdemyTokenDiamond = await diamond.deploy({
@@ -93,6 +96,9 @@ async function main() {
         args: [[name, symbol]]
     })
 
+    //we need to wait for the deploys to finish
+    await blockdemyTokenDiamond.deployed()
+
 
     const blockdemyDiamond = await diamond.deploy({
         diamondName: 'BlockdemyDiamond',
@@ -104,6 +110,8 @@ async function main() {
         args: [[ blockdemyCourseDiamond.address, blockdemyTokenDiamond.address]]
     })
 
+    //we need to wait for the deploys to finish
+    await blockdemyDiamond.deployed()
 
 
     // set post diamonds deployment data //
@@ -112,12 +120,20 @@ async function main() {
 
     //set blockdemy to course
     console.log('Set blockdemy to blockdemy course');
+    
+    //here it failed
     await blockdemyCourseFacet.setBlockdemy(blockdemyDiamond.address, {from:account });
 
-    //mint tokens to blockdemy
-    let totalSupply = "100000000000000000000000000000"; //100BN TOKENS blockdemyToken
-    let totalSupplyBN = ethers.BigNumber.from(totalSupply);
-    await blockdemyTokenFacet.mint(blockdemyDiamond.address, totalSupplyBN, {from:account });
+    console.log('blockdemy course setted');
+
+    //mint tokens to blockdemy, this is failing in kovan deploy
+    console.log('Mint tokens to blockdemy diamond'); 
+
+    let ownerInitialSupply = "100000000000000000000000000000"; //totalSUpply to deployer
+
+    await blockdemyTokenFacet.mint(account, ethers.BigNumber.from(ownerInitialSupply), {from:account });
+
+    console.log('tokens mint'); 
 
 
     //final prints
@@ -131,6 +147,13 @@ async function main() {
     console.log("const blockdemyDiamondAddress=\""+blockdemyDiamond.address+"\";");
     //console.log('blockdemyTokenFacet address: '+blockdemyTokenFacet.address) 
 
+    /*
+    addresses: 
+    BlockdemyDiamond deployed: 0x7F9fB28C3e03D597417adeD3c6A5e2D342241Ef4
+    BlockdemyTokenDiamond deployed: 0xEb029669BDDd22AF0D3f6489b4796FFFD0C2ac81
+    lockdemyCourseDiamond deployed: 0xC282452f9A2775c39D31604621619c2742B0Fa9F
+
+    */
 
 }
 
